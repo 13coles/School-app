@@ -90,8 +90,8 @@
 
         <script type="text/javascript">
             function showLoginForm(role) {
-                document.getElementById('role-selector').classList.add('hidden'); // Hide role selector
-                document.getElementById('login-form').classList.remove('hidden'); // Show login form
+                document.getElementById('role-selector').classList.add('hidden'); // Hide the role selector form (admin, teacher, student buttons)
+                document.getElementById('login-form').classList.remove('hidden'); // Show the corresponding login forms based on role selected
                 
                 const formTitle = document.getElementById('form-title');
                 formTitle.textContent = `${role.charAt(0).toUpperCase() + role.slice(1)} Login`;
