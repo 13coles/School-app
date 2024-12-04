@@ -1,0 +1,44 @@
+.modal-dialog-scrollable {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+.modal-content {
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+.modal-body {
+    overflow-y: auto;
+    max-height: calc(90vh - 120px);
+}
+#viewStudentModal .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#viewStudentModal .text-muted {
+    font-weight: 400;
+    color: #6c757d;
+}
+
+#viewStudentModal strong {
+    color: #495057;
+    font-weight: 600;
+}
+
+#view_complete_address {
+    background-color: #f8f9fa;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+}
+
+#view_student_status.text-success {
+    color: #28a745 !important;
+    font-weight: 600;
+}
+
+#view_student_status.text-danger {
+    color: #dc3545 !important;
+    font-weight: 600;
+}

@@ -1,129 +1,234 @@
-<?php session_start()?>
+<?php 
+    session_start();
 
+    require_once('utils/access_control.php');
+
+    checkAccess(['student']);
+?>
 
 <!DOCTYPE html>
 <html lang="en">
     <?php include('./components/header.php');?>
+    <link rel="stylesheet" href="./assets/css/students_modal.css">
 
     <body class="hold-transition sidebar-mini">
         <div class="wrapper">
             <!-- Preloader -->
             <div class="preloader flex-column justify-content-center align-items-center">
-                <img class="animation__wobble" src="./assets/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
+                <img class="animation__wobble" src="./assets/img/images.jfif" alt="AdminLTELogo" height="180" width="180">
             </div>
             
             <!-- Navbar component -->
             <?php include('./components/navbar.php');?>
             <!-- Sidebar component -->
-            <!-- if mag dynamic na ang sidbar pwede nlng ni mailisan "< include('./components/sidebar.php')>" -->
-            <?php include('student_sidebar.php');?>
+            <?php include('./components/student_sidebar.php');?>
 
 
-            <!-- Content Wrapper. Contains page content -->
+            <!-- Content Wrapper -->
             <div class="content-wrapper">
-                <!-- Content Header (Page header) -->
+                <!-- Content Header -->
                 <div class="content-header">
                     <div class="container-fluid">
                         <div class="row mb-2">
                             <div class="col-sm-6">
-                                <h1 class="m-0">Dashboard</h1>
-                            </div><!-- /.col -->
+                                <h1 class="m-0">Personal Record</h1>
+                            </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item active">Dashboard</li>
+                                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                    <li class="breadcrumb-item active">Student Information</li>
                                 </ol>
-                            </div><!-- /.col -->
-                        </div><!-- /.row -->
-                    </div><!-- /.container-fluid -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Main content -->
                 <div class="content">
                     <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-lg-9">
-                                <!-- Small boxes (Stat box) -->
-                                <div class="row flex justify-content-start align-items-center mb-4">
-                                    <div class="col-lg-4 col-6">
-                                        <div class="small-box-clean info">
-                                            <div class="icon">
-                                                <i class="ion ion-ios-book text-info"></i>
-                                            </div>
-                                            <div class="inner">
-                                                <h3>8</h3>
-                                                <p>Total Subjects</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-4 col-6">
-                                        <div class="small-box-clean success">
-                                            <div class="icon">
-                                                <i class="ion ion-podium text-success"></i>
-                                            </div>
-                                            <div class="inner">
-                                                <h3>53<sup style="font-size: 0.6em">%</sup></h3>
-                                                <p>Academic Performance</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-4 col-6">
-                                        <div class="small-box-clean warning">
-                                            <div class="icon">
-                                                <i class="ion ion-close-circled text-warning"></i>
-                                            </div>
-                                            <div class="inner">
-                                                <h3>Failed</h3>
-                                                <p>Status</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Student grade chart -->
-                                <div class="card card-primary card-outline">
-                                    <div class="card-header border-0">
-                                        <div class="d-flex justify-content-between">
-                                            <h3 class="card-title">Passed & Failed Student Records</h3>
-                                            <a href="javascript:void(0);" class="text-primary">View Report</a>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="chart-container">
-                                            <canvas id="visitors-chart" style="height: 400px;"></canvas>
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-end">
+                                    <div class="input-group input-group-sm" style="width: 250px;">
+                                        <input type="search" class="form-control" placeholder="Search your specific record" id="studentSearch">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <div class="col-lg-3 d-flex align-items-stretch">
-                                <div class="card card-success card-outline w-100">
-                                    <div class="card-header border-0">
-                                        <div class="d-flex justify-content-between">
-                                            <h3 class="card-title">Student Grade Distribution</h3>
-                                            <a href="javascript:void(0);" class="text-success">View Details</a>
-                                        </div>
-                                    </div>
-                                    <div class="card-body d-flex flex-column">
-                                        <div class="chart-container flex-grow-1">
-                                            <canvas id="grade-distribution-chart"></canvas>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="card-body">
+                                <table id="personalRecordTable" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>LRN</th>
+                                            <th>Name</th>
+                                            <th class="text-center">Gender</th>
+                                            <th class="text-center">Grade</th>
+                                            <th class="text-center">Section</th>
+                                            <th class="text-center">Barangay</th>
+                                            <th>Municipality</th>
+                                            <th>Province</th>
+                                            <th>Contact</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                       <!-- Rendered in javascript -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- /.content -->
             </div>
 
+            <!-- View personl details modal -->
+            <div class="modal fade" id="viewDetailsModal" tabindex="-1" role="dialog" aria-labelledby="viewDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary text-white">
+                            <h5 class="modal-title" id="viewDetailsModalLabel">
+                                <i class="fas fa-user mr-2"></i>Full Details
+                            </h5>
+                            <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="container-fluid">
+                                <!-- Personal Information Section -->
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <h4 class="border-bottom pb-2">
+                                            <i class="fas fa-user mr-2"></i>Personal Information
+                                        </h4>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>LRN:</strong>
+                                        <p id="view_lrn" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <strong>Full Name:</strong>
+                                        <p id="view_full_name" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4 pt-2">
+                                        <strong>Date of Birth:</strong>
+                                        <p id="view_birth_date" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4 pt-2">
+                                        <strong>Sex:</strong>
+                                        <p id="view_sex" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4 pt-2">
+                                        <strong>Religion:</strong>
+                                        <p id="view_religion" class="text-muted"></p>
+                                    </div>
+                                </div>
 
+                                <!-- Address Information Section -->
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <h4 class="border-bottom pb-2">
+                                            <i class="fas fa-map-marker-alt mr-2"></i>Address Information
+                                        </h4>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <strong>Complete Address:</strong>
+                                        <p id="view_complete_address" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Street:</strong>
+                                        <p id="view_street" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Barangay:</strong>
+                                        <p id="view_barangay" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Municipality:</strong>
+                                        <p id="view_municipality" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4 pt-2">
+                                        <strong>Province:</strong>
+                                        <p id="view_province" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4 pt-2">
+                                        <strong>Contact Number:</strong>
+                                        <p id="view_contact_number" class="text-muted"></p>
+                                    </div>
+                                </div>
 
+                                <!-- Parent/Guardian Information Section -->
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <h4 class="border-bottom pb-2">
+                                            <i class="fas fa-users mr-2"></i>Parent/Guardian Information
+                                        </h4>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Father's Name:</strong>
+                                        <p id="view_father_name" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Mother's Name:</strong>
+                                        <p id="view_mother_name" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-6 pt-2">
+                                        <strong>Guardian's Name:</strong>
+                                        <p id="view_guardian_name" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-3 pt-2">
+                                        <strong>Relationship:</strong>
+                                        <p id="view_relationship" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-3 pt-2">
+                                        <strong>Guardian/Parent Contact:</strong>
+                                        <p id="view_guardian_contact" class="text-muted"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Academic Information Section -->
+                                <div class="row mb-3">
+                                    <div class="col-12 pt-2">
+                                        <h4 class="border-bottom pb-2">
+                                            <i class="fas fa-graduation-cap mr-2"></i>Academic Information
+                                        </h4>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Grade Level:</strong>
+                                        <p id="view_grade" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Section:</strong>
+                                        <p id="view_section" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Learning Modality:</strong>
+                                        <p id="view_learning_modality" class="text-muted"></p>
+                                    </div>
+                                    <div class="col-12 pt-2">
+                                        <strong>Remarks:</strong>
+                                        <p id="view_remarks" class="text-muted"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                <i class="fas fa-times mr-1"></i>Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer component -->
             <?php include('./components/footer.php');?>
         </div>
         
         <?php include('./components/scripts.php');?>
+
+        <script src="./assets/js/my_record.js"></script>
     </body>
 </html>

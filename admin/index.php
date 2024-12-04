@@ -1,6 +1,12 @@
+<?php 
+    session_start();
 
-<?php session_start()?>
+    require_once('../utils/access_control.php');
+    
+    checkAccess(['admin']);
+?>
 
+<!-- Dashboard page -->
 <!DOCTYPE html>
 <html lang="en">
     <?php include('../components/header.php')?>
@@ -9,7 +15,7 @@
         <div class="wrapper">
             <!-- Preloader -->
             <div class="preloader flex-column justify-content-center align-items-center">
-                <img class="animation__wobble" src="../assets/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
+                <img class="animation__wobble" src="../assets/img/images.jfif" alt="AdminLTELogo" height="180" width="180">
             </div>
             
             <!-- Navbar component -->
@@ -94,7 +100,7 @@
                         <div class="row">
                             <div class="col-lg-12">
                                 <div class="row">
-                                    <!-- In your existing HTML, modify the chart sections like this -->
+                                    <!-- bar chart container -->
                                     <div class="col-lg-6">
                                         <div class="card card-primary card-outline">
                                             <div class="card-header border-0">
@@ -111,7 +117,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Modify the pie chart containers like this -->
+                                    <!-- pie chart conainer -->
                                     <div class="col-lg-6">
                                         <div class="card card-primary card-outline">
                                             <div class="card-header border-0">
@@ -122,10 +128,10 @@
                                             </div>
                                             <div class="card-body">
                                                 <div class="row d-flex justify-content-center">
-                                                    <!-- Charity Pie Chart -->
+                                                    <!-- first chart -->
                                                     <div class="col-md-5 text-center">
                                                         <h5 class="mb-2">Charity</h5>
-                                                        <div class="chart-container pie-chart-container"> <!-- Add pie-chart-container class -->
+                                                        <div class="chart-container pie-chart-container"> 
                                                             <canvas id="charity"></canvas>
                                                         </div>
                                                         <div class="performance-legend">
@@ -134,10 +140,10 @@
                                                         </div>
                                                     </div>
 
-                                                    <!-- Humility Pie Chart -->
+                                                    <!-- second chart -->
                                                     <div class="col-md-5 text-center">
                                                         <h5 class="mb-2">Humility</h5>
-                                                        <div class="chart-container pie-chart-container"> <!-- Add pie-chart-container class -->
+                                                        <div class="chart-container pie-chart-container"> 
                                                             <canvas id="humility"></canvas>
                                                         </div>
                                                         <div class="performance-legend">
@@ -165,5 +171,5 @@
 
     <!-- Static Data for charts -->
     <!-- Gn butangan ko lng dri static data sa charts para may visuals lng, revise ko lng if needed no dynamic functions yet.  -->
-    <script src="../assets/js/pages/index.js"></script>
+    <script src="../assets/js/index.js"></script>
 </html>

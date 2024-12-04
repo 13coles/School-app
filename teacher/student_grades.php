@@ -3,7 +3,7 @@
 
     require_once('../utils/access_control.php');
     
-    checkAccess(['admin']);
+    checkAccess(['teacher']);
 ?>
 
 <!DOCTYPE html>
@@ -40,7 +40,7 @@
             <!-- Navbar component -->
             <?php include('../components/navbar.php');?>
             <!-- Sidebar component -->
-            <?php include('../components/sidebar.php');?>
+            <?php include('../components/teacher_sidebar.php');?>
 
              <!-- Content Wrapper -->
              <div class="content-wrapper">
@@ -85,40 +85,38 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <form action="">
-                                            <tr>
-                                                <td>John Doe</td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="Filipino">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="English">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="Math">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="Science">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="Aral Pan">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="MAPEH">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="ESP">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="TLE">
-                                                </td>
-                                                <td class="text-center">
-                                                    <button class="btn btn-sm btn-primary btn-edit-grades" data-toggle="tooltip" title="Edit Grades">
-                                                        <i class="fas fa-edit mr-1"></i>Edit Grade
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </form>
+                                        <tr>
+                                            <td>John Doe</td>
+                                            <td class="p-1">
+                                                <input type="text" class="form-control editable-grade" data-subject="Filipino">
+                                            </td>
+                                            <td class="p-1">
+                                                <input type="text" class="form-control editable-grade" data-subject="English">
+                                            </td>
+                                            <td class="p-1">
+                                                <input type="text" class="form-control editable-grade" data-subject="Math">
+                                            </td>
+                                            <td class="p-1">
+                                                <input type="text" class="form-control editable-grade" data-subject="Science">
+                                            </td>
+                                            <td class="p-1">
+                                                <input type="text" class="form-control editable-grade" data-subject="Aral Pan">
+                                            </td>
+                                            <td class="p-1">
+                                                <input type="text" class="form-control editable-grade" data-subject="MAPEH">
+                                            </td>
+                                            <td class="p-1">
+                                                <input type="text" class="form-control editable-grade" data-subject="ESP">
+                                            </td>
+                                            <td class="p-1">
+                                                <input type="text" class="form-control editable-grade" data-subject="TLE">
+                                            </td>
+                                            <td class="text-center">
+                                                <button class="btn btn-sm btn-primary btn-edit-grades" data-toggle="tooltip" title="Edit Grades">
+                                                    <i class="fas fa-edit mr-1"></i>Edit Grade
+                                                </button>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>

@@ -116,8 +116,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%; /* Ensure full width */
-    transition: opacity 0.3s ease; /* Smooth transition for hiding/showing */
+    width: 100%; 
+    transition: opacity 0.3s ease; 
 }
 
 .user-name {
@@ -126,11 +126,11 @@
     font-weight: 600;
     margin-bottom: 5px;
     text-transform: capitalize;
-    text-align: center; /* Ensure text is centered */
-    width: 100%; /* Full width */
-    overflow: hidden; /* Prevent text overflow */
-    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
-    white-space: nowrap; /* Prevent wrapping */
+    text-align: center; 
+    width: 100%; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
 }
 
 .user-role {
@@ -138,14 +138,13 @@
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    text-align: center; /* Ensure text is centered */
-    width: 100%; /* Full width */
-    overflow: hidden; /* Prevent text overflow */
-    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
-    white-space: nowrap; /* Prevent wrapping */
+    text-align: center; 
+    width: 100%; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
 }
 
-/* Add a new rule for non-minified state to ensure visibility */
 .modern-sidebar .user-info {
     display: flex;
 }

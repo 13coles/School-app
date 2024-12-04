@@ -1,6 +1,8 @@
 <?php
     session_start();
+    require_once ('./utils/db_connection.php');
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -23,6 +25,18 @@
         </header>
 
         <main class="flex-grow flex flex-col items-center justify-center px-4 py-8">
+            <!-- Error Message Display -->
+            <?php
+                if (isset($_SESSION['error'])) {
+                    echo '<div class="w-full max-w-md mb-4">';
+                    echo '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">';
+                    echo htmlspecialchars($_SESSION['error']);
+                    echo '</div>';
+                    echo '</div>';
+                    unset($_SESSION['error']);
+                }
+            ?>
+            <!-- Start -->
             <img src="assets/img/images.jfif" alt="Sewahon logo" class="h-48 w-48 mb-8 rounded-full shadow-lg">
             
             <div class="w-full max-w-md">
@@ -54,7 +68,7 @@
 
                         <!-- Dynamic Role Based Form -->
                         <div id="login-form" class="hidden">
-                            <form id="dynamic-form" action="login.php" method="post" class="space-y-4">
+                            <form id="dynamic-form" action="./authentication/login.php" method="post" class="space-y-4">
                                 <input type="hidden" name="role" id="role-input">
                                 
                                 <div class="mb-4">
@@ -135,4 +149,4 @@
         </script>
     </body>
 </html>
-                
+     

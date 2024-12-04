@@ -36,15 +36,59 @@
         <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
       </div>
     </li>
-    <li class="nav-item">
-      <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-        <i class="fas fa-expand-arrows-alt"></i>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-        Account
-      </a>
+
+    <!-- User Account Dropdown Menu -->
+    <li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="fas fa-user"></i>
+            <i class="fas fa-caret-down ml-1" style="font-size: 0.7em;"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <div class="dropdown-header">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <img src="../vendor/almasaeed2010/adminlte/dist/img/user4-128x128.jpg" class="img-circle elevation-2" alt="User Image" style="width: 40px; height: 40px;">
+                    </div>
+                    <div class="flex-grow-1 ml-3">
+                        <!-- Current user's full name -->
+                        <h6 class="mb-0"><?php echo $_SESSION['full_name']; ?></h6> 
+                        <small class="text-muted"><?php echo ucfirst($_SESSION['user_role']); ?></small> <!-- Current user's role -->
+                    </div>
+                </div>
+            </div>
+
+            <?php 
+                // Array that will hold the links displayed in the dropdown settings
+                $dropdown_menu = [
+                    'admin' => [], // admin will not have these links
+                    // teachers and students will have these links
+                    'teacher' => [
+                        'My profile' => '../teacher/teacher_profile.php',
+                        'Account settings' => '../teacher/teacher_settings.php'
+                    ],
+                    'student' => [
+                        'My profile' => './profile.php',
+                        'Account settings' => './settings.php'
+                    ]
+                ];
+
+                // Get current user's menu items based on the logged in user's role
+                $user_dropdown_menu = $dropdown_menu[$_SESSION['user_role']] ?? [];
+
+                // Show dropdown links dynamically based on the logged in user's role
+                foreach ($user_dropdown_menu as $label => $link) {
+                    echo '<div class="dropdown-divider"></div>';
+                    echo '<a href="' . htmlspecialchars($link) . '" class="dropdown-item">';
+                    echo '<i class="fas fa-' . ($label === 'My profile' ? 'user' : 'cog') . ' mr-2"></i> ';
+                    echo ucfirst($label);
+                    echo '</a>';
+                }
+            ?>
+            <div class="dropdown-divider"></div>
+            <a href="../authentication/logout.php" class="dropdown-item dropdown-footer text-danger">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </a>
+        </div>
     </li>
   </ul>
 </nav>
