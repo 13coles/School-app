@@ -198,7 +198,7 @@ $(document).ready(function() {
                                             <a class="dropdown-item view-student" data-id="${student.id}" style="cursor:default;">
                                                 <i class="fas fa-eye text-info mr-2"></i> View Details
                                             </a>
-                                            <a class="dropdown-item view-grades" href="../admin/view_grades.php" style="cursor:default;">
+                                            <a class="dropdown-item view-grades" href="../teacher/student_grades.php" style="cursor:default;">
                                                 <i class="fas fa-list-alt text-info mr-2"></i> View Grades
                                             </a>
                                             <a class="dropdown-item attendance" style="cursor:default;">

@@ -3,7 +3,7 @@
     
     header('Content-Type: application/json'); 
 
-    // function for creating student record
+    # function for creating student record
     function createStudentRecord($data) {
         global $pdo;
     
@@ -131,7 +131,6 @@
             }
     
             # commit database transaction
-            # commiting all the executed queries if all data are valid 
             $pdo->commit();
     
             echo json_encode([

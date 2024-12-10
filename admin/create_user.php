@@ -14,9 +14,9 @@
             for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
                 # generate random numbers
                 $randomNum = str_pad(mt_rand(0, 9999), 5, '0', STR_PAD_LEFT); # 5 digits, starting with zero
-                $username = $prefix . $randomNum; # concatinating the prefix to the randomly generated numbers
+                $username = $prefix . $randomNum; 
 
-                # prepare the query to check from the usrs table if the generated username already exists
+                # prepare the query to check from the usrs table and check if the generated username already exists
                 $query = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
                 $query->execute([$username]); 
                 
@@ -101,12 +101,11 @@
                 throw new Exception("Invalid email format");
             }
 
-            # start transaction
             $pdo->beginTransaction();
 
             $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
 
-            $studentId = null; # setting a null value for the student id
+            $studentId = null; 
             # this id will be used to identify the student record created and pass it to the foreign key column in the users table
 
             # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -137,7 +136,7 @@
                     ':contact_number' => $data['contact_number'] ?? null
                 ]);
 
-                # Get the last inserted student ID
+                # assign the last inserted student ID
                 $studentId = $pdo->lastInsertId();
             }
 
