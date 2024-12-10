@@ -1,0 +1,44 @@
+.chart-container {
+    position: relative;
+    height: 300px; 
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-container canvas {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px;
+    }
+}
+
+.performance-legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.performance-legend .badge {
+    margin: 0 5px;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+}
+
+.pie-chart-container {
+    height: 240px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.pie-chart-container canvas {
+    max-height: 150px; 
+    max-width: 150px;
+}
