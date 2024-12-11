@@ -171,6 +171,18 @@ $(document).ready(function() {
     // function to fetch and display students from the database
     function loadStudentRecord() {
         const teacherSection = `<?php echo $_SESSION['teacher_section']; ?>`; 
+
+        if (!teacherSection) {
+            $('#studentTable tbody').empty(); 
+            $('#studentTable tbody').append(`
+                <tr>
+                    <td colspan="10" class="text-center text-danger">
+                        No section has been assigned to this teacher account yet.
+                    </td>
+                </tr>
+            `);
+            return; 
+        }
         
         $.ajax({
             url: 'fetch_records.php',
@@ -226,12 +238,20 @@ $(document).ready(function() {
                     
                     $('[data-toggle="tooltip"]').tooltip();
     
-                } else {
+                } else if (response.status === 'info') {
                     console.error('Failed to load students:', response.message);
+                    $('#studentTable tbody').append(`
+                        <tr>
+                            <td colspan="10" class="text-center text-warning">
+                                ${response.message}
+                            </td>
+                        </tr>
+                    `);
+                } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: response.message || 'Failed to load students'
+                        text: response.message || 'An unexpected error occurred.'
                     });
                 }
             },

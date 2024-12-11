@@ -8,7 +8,12 @@ header('Content-Type: application/json');
 try {
     // Check if the session variable exists
     if (!isset($_SESSION['teacher_section'])) {
-        throw new Exception("Teacher section not set in session.");
+        $response = [
+            'status' => 'info',
+            'message' => 'No section has been assigned to this teacher account yet.'
+        ];
+        echo json_encode($response);
+        exit;
     }
 
     $teacher_section = $_SESSION['teacher_section']; 
