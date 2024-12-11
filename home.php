@@ -1,7 +1,7 @@
 <?php 
     session_start();
 
-    require_once('utils/access_control.php');
+    require_once('./utils/access_control.php');
 
     checkAccess(['student']);
 ?>

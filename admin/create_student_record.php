@@ -136,7 +136,7 @@
             echo json_encode([
                 'status' => 'success',
                 'message' => 'Student record and user account created successfully',
-                'lrn' => $data['lrn'],
+                'lrn' => $data['lrn'], 
                 'default_password' => $defaultPassword
             ]);
             exit;
