@@ -220,7 +220,7 @@ $(document).ready(function() {
                                     <a class="dropdown-item view-grades" href="../admin/view_grades.php" style="cursor:default;">
                                         <i class="fas fa-list-alt text-info mr-2"></i> View Grades
                                     </a>
-                                    <a class="dropdown-item view-grades" style="cursor:default;">
+                                    <a class="dropdown-item view-attendance" style="cursor:default;">
                                         <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
                                     </a>
                                     <a class="dropdown-item edit-student" data-id="${student.id}" data-toggle="modal" data-target="#editStudentModal" style="cursor:default;">
@@ -232,7 +232,8 @@ $(document).ready(function() {
                                     </a>
                                 </div>
                             </div>
-                            `
+                            `,
+                            student.id
                         ]);
                     });
     
@@ -548,15 +549,97 @@ $(document).ready(function() {
         });
     });
 
-    // attendance modal trigger
-    $(document).on('click', '.view-grades', function() {
-        const studentName = $(this).closest('tr').find('td:nth-child(2)').text();
+    // Attendance modal trigger
+    $(document).on('click', '.view-attendance', function() {
+        const row = $(this).closest('tr'); 
+        const studentId = studentTable.row(row).data()[10]; 
+        const studentName = row.find('td:nth-child(2)').text(); 
         
+        $('#student_id').val(studentId);
+    
         $('#attendanceModalLabel').html(`
             <i class="fas fa-calendar-check mr-2 text-success"></i>
             Attendance for ${studentName}
         `);
+    
+        $('#attendanceModal').modal('show'); // Show the modal
+    }); 
 
-        $('#attendanceModal').modal('show');
+    // Save attendance (AJAX submission)
+    $('#attendanceForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent the form from submitting the traditional way
+        
+        const studentId = $('#student_id').val(); // Get the student ID from the hidden input
+        const attendanceStatus = $('input[name="attendance"]:checked').val(); // Get the selected attendance status
+        
+        if (!attendanceStatus) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Attendance Status Selected',
+                text: 'Please select either Present or Absent.',
+            });
+            return;
+        }
+
+        const attendanceDate = new Date().toISOString().split('T')[0]; // Get the current date in YYYY-MM-DD format
+
+        console.log({
+            student_id: studentId,
+            attendance_date: attendanceDate,
+            attendance: attendanceStatus
+        }); // Log the data being sent
+
+        // AJAX request to save attendance
+        $.ajax({
+            url: 'student_attendance.php', 
+            type: 'POST',
+            data: {
+                student_id: studentId,
+                attendance_date: attendanceDate,
+                attendance: attendanceStatus
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log('Response:', response);
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Attendance Saved',
+                        text: 'Attendance has been recorded successfully.',
+                    }).then(() => {
+                        resetAttendanceModal();
+                        $('#attendanceModal').modal('hide'); 
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Failed to save attendance.',
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error saving attendance:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Network Error',
+                    text: 'Could not save attendance. Please try again.',
+                });
+            }
+        });
     });
+
+    function resetAttendanceModal() {
+        // Clear the radio button selection
+        $('input[name="attendance"]').prop('checked', false);
+        
+        // Clear the hidden input for student_id
+        $('#student_id').val('');
+        
+        // Reset the modal label to default
+        $('#attendanceModalLabel').html(`
+            <i class="fas fa-calendar-check mr-2 text-success"></i>
+            Attendance
+        `);
+    }
 });

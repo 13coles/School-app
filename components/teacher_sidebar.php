@@ -41,13 +41,13 @@
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a href="../teacher/student_grades.php" class="nav-link modern-nav-link">
-                  <i class="fas fa-trophy mr-2"></i>
+                  <i class="fas fa-trophy mr-2 ml-4"></i>
                   <p>Performance</p>
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link modern-nav-link">
-                  <i class="fas fa-calendar-check mr-2"></i>
+                <a href="../teacher/tc_student_attendance.php" class="nav-link modern-nav-link">
+                  <i class="fas fa-calendar-check mr-2 ml-4"></i>
                   <p>Attendance</p>
                 </a>
               </li>

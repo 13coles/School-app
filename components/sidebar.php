@@ -62,7 +62,7 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a href="#" class="nav-link modern-nav-link">
+                <a href="../admin/attendance.php" class="nav-link modern-nav-link">
                   <i class="fas fa-calendar-check mr-2"></i>
                   <p>Attendance</p>
                 </a>
