@@ -3,9 +3,15 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
+<<<<<<< Updated upstream
 -- Generation Time: Dec 15, 2024 at 01:16 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
+=======
+-- Generation Time: Dec 15, 2024 at 12:03 PM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
+>>>>>>> Stashed changes
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -39,6 +45,7 @@ CREATE TABLE `attendance` (
 --
 
 INSERT INTO `attendance` (`id`, `student_id`, `attendance_date`, `attendance`) VALUES
+<<<<<<< Updated upstream
 (0, 15, '2024-12-15', 'present');
 
 -- --------------------------------------------------------
@@ -80,6 +87,13 @@ INSERT INTO `grades` (`id`, `student_id`, `subject_id`, `quarter`, `written_test
 (78, 16, 6, 1, 15.00, 50.00, 20.00, 85.00, '2024-12-15 11:12:13'),
 (79, 16, 7, 1, 14.00, 45.00, 20.00, 79.00, '2024-12-15 11:12:13'),
 (80, 16, 8, 1, 25.00, 42.00, 13.00, 80.00, '2024-12-15 11:12:13');
+=======
+(12, 26, '2024-12-13', 'present'),
+(14, 23, '2024-12-13', 'present'),
+(15, 24, '2024-12-13', 'present'),
+(16, 27, '2024-12-13', 'present'),
+(20, 24, '2024-12-15', 'present');
+>>>>>>> Stashed changes
 
 -- --------------------------------------------------------
 
@@ -109,13 +123,15 @@ CREATE TABLE `students` (
   `learning_modality` varchar(50) DEFAULT NULL,
   `remarks` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `teacher_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `students`
 --
 
+<<<<<<< Updated upstream
 INSERT INTO `students` (`id`, `lrn`, `full_name`, `birth_date`, `sex`, `religion`, `street`, `barangay`, `municipality`, `province`, `contact_number`, `father_name`, `mother_name`, `guardian_name`, `relationship`, `guardian_contact`, `grade`, `section`, `learning_modality`, `remarks`, `created_at`, `updated_at`) VALUES
 (15, '117739160005', 'Tiongco, Jude Ledesma', '2024-12-11', 'Male', 'Catholic', 'Polopangyan', 'Old Sagay', 'Sagay', 'Negros Occidental', '09454413739', '', '', '', '', '', 'Grade 8', 'A', 'Face-to-Face', '', '2024-12-10 17:10:39', '2024-12-10 17:10:39'),
 (16, '117739160026', 'BOCALANGCO, JHON ISABELO', '2024-12-15', 'Male', 'Catholic', '123 street', 'CAMPO SANTIAGO', 'Sagay', 'Negros Occidental', '94555511236', '', 'BOCALANGCO,ELSIE,DELGADO,', '', 'Mother', '', 'Grade 8', 'A', 'Face-to-Face', '', '2024-12-15 09:56:31', '2024-12-15 09:56:31');
@@ -218,6 +234,15 @@ INSERT INTO `subjects` (`id`, `subject_name`, `created_at`, `updated_at`) VALUES
 (6, 'MAPEH', '2024-12-11', '2024-12-11'),
 (7, 'ESP', '2024-12-11', '2024-12-11'),
 (8, 'T.L.E', '2024-12-11', '2024-12-11');
+=======
+INSERT INTO `students` (`id`, `lrn`, `full_name`, `birth_date`, `sex`, `religion`, `street`, `barangay`, `municipality`, `province`, `contact_number`, `father_name`, `mother_name`, `guardian_name`, `relationship`, `guardian_contact`, `grade`, `section`, `learning_modality`, `remarks`, `created_at`, `updated_at`, `teacher_id`) VALUES
+(23, '117696070055', 'Malay, Cyril Anne Perillo', '2008-06-03', 'Female', 'Roman Catholic', 'Commonwealth Street', 'Barangay 7', 'Quezon City', 'Manila', '09123456789', 'Edwin P. Malay', 'Carol L. Malay', 'Ice L. Malay', 'Aunt', '09123456789', 'Grade 10', 'Fortitude', 'Face-to-Face', 'asdasx', '2024-12-11 11:24:09', '2024-12-11 11:24:09', NULL),
+(24, '117696070044', 'Lim, Mikha Janna', '2007-06-12', 'Female', 'Roman Catholic', 'Commonwealth Street', 'Barangay 1', 'Quezon City', 'Manila', '09987654321', 'Random Father', 'Random Mother', 'Secret Guardian', 'Secret', '09874561231', 'Grade 7', 'Charity', 'Online', 'asDAS', '2024-12-11 11:51:05', '2024-12-11 11:51:05', NULL),
+(25, '117696071155', 'Minatozaki, Sana Shin', '1997-05-02', 'Female', 'Roman Catholic', 'Commonwealth Street', 'Barangay 7', 'Quezon City', 'Manila', '09123455678', 'Random Father', 'Random Mother', 'Secret', 'Secret', '09887945612', 'Grade 8', 'Humility', 'Modular', 'sadas', '2024-12-11 11:52:18', '2024-12-11 11:52:18', NULL),
+(26, '117696030301', 'Vergara, Colet Florenosos', '2006-07-14', 'Female', 'Catholic', 'Commonwealth Street', 'Barangay 1', 'Quezon City', 'Manila', '09111111112', 'Random Father', 'Random Mother', 'Secret', 'Secret', '09874561242', 'Grade 9', 'Prudence', 'Blended', 'asdfascx', '2024-12-11 11:53:30', '2024-12-11 11:53:30', NULL),
+(27, '117696975473', 'random student this', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '09111111112', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-12-11 14:07:30', '2024-12-11 14:07:30', NULL),
+(28, '117696098977', 'Jomari, Secret Secret', '2024-12-13', 'Male', 'Roman Catholic', 'Marañon Street', 'Prk. Masagana, Poblacion II', 'Sagay City', 'Negros Occidental', '09123455678', 'Random Father', 'Random Mother', 'Secret', 'Aunt', '09874561231', 'Grade 10', 'Fortitude', 'Online', 'asdas', '2024-12-13 05:35:54', '2024-12-13 05:35:54', NULL);
+>>>>>>> Stashed changes
 
 -- --------------------------------------------------------
 
@@ -242,6 +267,18 @@ CREATE TABLE `teachers` (
   `student_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+<<<<<<< Updated upstream
+=======
+--
+-- Dumping data for table `teachers`
+--
+
+INSERT INTO `teachers` (`id`, `teacher_id_num`, `full_name`, `birth_date`, `sex`, `religion`, `street`, `barangay`, `municipality`, `province`, `contact_number`, `grade`, `section`, `student_id`) VALUES
+(8, 'tch-26477', 'Bendol, Jasper Brodit', '2001-05-29', 'Male', '', 'Marañon Street', 'Prk. Masagana, Poblacion II', 'Sagay City', 'Negros Occidental', '09123456789', 'Grade 10', 'Fortitude', NULL),
+(9, 'tch-87425', 'Coles, Eric John Golez', '2001-12-13', 'Male', 'Roman Catholic', 'Bug-ang Street', 'Barangay Minapasok', 'Escalante City', 'Negros Occidental', '09987654321', 'Grade 7', 'Charity', NULL),
+(13, 'tch-07911', 'Jonathan Facurib', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '09987654321', NULL, NULL, NULL);
+
+>>>>>>> Stashed changes
 -- --------------------------------------------------------
 
 --
@@ -282,13 +319,15 @@ CREATE TABLE `users` (
   `contact_number` varchar(20) DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `student_id` int(11) DEFAULT NULL
+  `student_id` int(11) DEFAULT NULL,
+  `teacher_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
+<<<<<<< Updated upstream
 INSERT INTO `users` (`id`, `username`, `password`, `user_role`, `full_name`, `email`, `contact_number`, `is_active`, `created_at`, `student_id`) VALUES
 (2, 'admin001', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'System Administrator', 'admin@sewahon.edu.ph', '09123456789', 1, '2024-12-02 13:11:48', NULL),
 (5, 'tch-07703', '$2y$10$hLDjfpvqiGRbTjd0EAnWqu8J/CcrTGEvEbOkthTgtZAChjosibHJ6', 'teacher', 'Irene Cartaciano', 'irene@email.com', '09112233445', 1, '2024-12-02 16:39:32', NULL),
@@ -298,25 +337,61 @@ INSERT INTO `users` (`id`, `username`, `password`, `user_role`, `full_name`, `em
 (23, 'tch-01825', '$2y$10$AdNSZo5s8Y48IM6J/ivRS.eGvVTwI5Y2i89h4HhIaZOzYeppsINt2', 'teacher', 'Jude Ledesma Tiongco', 'dev@gmail.com', '09454413739', 1, '2024-12-10 11:51:51', NULL),
 (24, '117739160005', '$2y$10$I6crxOAt9UwqwB.Un2okROChNGmxAaCEFeshDHhhRI.dU/eFW38hm', 'student', 'Tiongco, Jude Ledesma', 'ledesma@gmail.com', '09454413739', 1, '2024-12-10 17:10:40', 15),
 (25, '117739160026', '$2y$10$AfaHFZrYL5ylZnDKN.ir1.3LAivXxSV5Hx5hn9Mep2CA6gQwVd8BG', 'student', 'BOCALANGCO, JHON ISABELO', NULL, '94555511236', 1, '2024-12-15 09:56:31', 16);
+=======
+INSERT INTO `users` (`id`, `username`, `password`, `user_role`, `full_name`, `email`, `contact_number`, `is_active`, `created_at`, `student_id`, `teacher_id`) VALUES
+(2, 'admin001', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'System Administrator', 'admin@sewahon.edu.ph', '09123456789', 1, '2024-12-02 13:11:48', NULL, NULL),
+(42, '117696070044', '$2y$10$mD47muZ4pBHpze6yI9iP1.B4tOWCunPmjbPN4lPFNZikRav17/qL.', 'student', 'Lim, Mikha Janna', NULL, '09987654321', 1, '2024-12-11 11:51:05', 24, NULL),
+(43, '117696071155', '$2y$10$HXfy87Snh6F5SRohbzYRz./YUIR5Ie4LYzEJyAmeoZPqi8sD6QoEy', 'student', 'Minatozaki, Sana Shin', NULL, '09123455678', 1, '2024-12-11 11:52:18', 25, NULL),
+(44, '117696030301', '$2y$10$HP9/GSihQ1LEtZejs.4FBubD/inJLIgdC3VsGYCrcZXT9bBo93DSq', 'student', 'Vergara, Colet Florenosos', NULL, '09111111112', 1, '2024-12-11 11:53:30', 26, NULL),
+(45, 'tch-26477', '$2y$10$zzUTUKpM3bB0FpeeYtsOnOQg69h/scd8wLCPz3pE8G/MjpiseyUNm', 'teacher', 'Bendol, Jasper Brodit', NULL, '09123456789', 1, '2024-12-11 13:09:06', NULL, 8),
+(46, 'tch-87425', '$2y$10$zb65oMByDQnSp6wzPC9KfOs6LfKToXVrKa5Dd/FUupYXCGFrFs3AC', 'teacher', 'Coles, Eric John Golez', 'eric@email.com', '09987654321', 1, '2024-12-11 13:18:00', NULL, 9),
+(47, 'tch-07911', '$2y$10$lNty0WtW5bOdMkzQxAy/v.nt0jKq54Hs6P.LJNIiY15NBZK56Xlgu', 'teacher', 'Jonathan Facurib', 'jonathan@email.com', '09987654321', 1, '2024-12-11 14:03:02', NULL, 13),
+(48, '117696975473', '$2y$10$sCV0S36QRub3YWTpsjTYeObeuk8lMX7WsHPcqkWGxUaJJmgxXJP0S', 'student', 'random student this', 'random@email.com', '09111111112', 1, '2024-12-11 14:07:30', 27, NULL),
+(49, '117696098977', '$2y$10$t.wJJCBmBB.LD2tlc5pfT.W3SZYOuSnmfkl2x3ncxmus/SG0XyMZe', 'student', 'Jomari, Secret Secret', 'jomari@email.com', '09123455678', 1, '2024-12-13 05:35:54', NULL, NULL);
+>>>>>>> Stashed changes
 
 --
 -- Indexes for dumped tables
 --
 
 --
+<<<<<<< Updated upstream
 -- Indexes for table `grades`
 --
 ALTER TABLE `grades`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `student_id` (`student_id`,`subject_id`),
   ADD KEY `grades_ibfk_2` (`subject_id`);
+=======
+-- Indexes for table `attendance`
+--
+ALTER TABLE `attendance`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `student_id` (`student_id`);
+>>>>>>> Stashed changes
 
 --
 -- Indexes for table `students`
 --
 ALTER TABLE `students`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `lrn` (`lrn`);
+  ADD UNIQUE KEY `lrn` (`lrn`),
+  ADD KEY `fk_teacher` (`teacher_id`);
+
+--
+-- Indexes for table `teachers`
+--
+ALTER TABLE `teachers`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `teacher_id_num` (`teacher_id_num`),
+  ADD KEY `fk_student` (`student_id`);
+
+--
+-- Indexes for table `teacher_archive`
+--
+ALTER TABLE `teacher_archive`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `teacher_id` (`teacher_id`);
 
 --
 -- Indexes for table `student_card`
@@ -344,22 +419,31 @@ ALTER TABLE `subjects`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD KEY `fk_teacher_id` (`teacher_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
+<<<<<<< Updated upstream
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+=======
+-- AUTO_INCREMENT for table `attendance`
+--
+ALTER TABLE `attendance`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+>>>>>>> Stashed changes
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
+<<<<<<< Updated upstream
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
@@ -373,18 +457,38 @@ ALTER TABLE `student_card`
 --
 ALTER TABLE `subjects`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+=======
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+
+--
+-- AUTO_INCREMENT for table `teachers`
+--
+ALTER TABLE `teachers`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+>>>>>>> Stashed changes
+
+--
+-- AUTO_INCREMENT for table `teacher_archive`
+--
+ALTER TABLE `teacher_archive`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
+<<<<<<< Updated upstream
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+=======
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+>>>>>>> Stashed changes
 
 --
 -- Constraints for dumped tables
 --
 
 --
+<<<<<<< Updated upstream
 -- Constraints for table `grades`
 --
 ALTER TABLE `grades`
@@ -404,6 +508,36 @@ ALTER TABLE `student_card`
 ALTER TABLE `student_subject`
   ADD CONSTRAINT `student_subject_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `student_subject_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+=======
+-- Constraints for table `attendance`
+--
+ALTER TABLE `attendance`
+  ADD CONSTRAINT `attendance_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`);
+
+--
+-- Constraints for table `students`
+--
+ALTER TABLE `students`
+  ADD CONSTRAINT `fk_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`);
+
+--
+-- Constraints for table `teachers`
+--
+ALTER TABLE `teachers`
+  ADD CONSTRAINT `fk_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `teacher_archive`
+--
+ALTER TABLE `teacher_archive`
+  ADD CONSTRAINT `teacher_archive_ibfk_1` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_teacher_id` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`);
+>>>>>>> Stashed changes
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -39,6 +39,23 @@
               <i class="nav-icon fas fa-file-alt"></i> 
               <p>Report Card</p>
             </a>
+<<<<<<< Updated upstream
+=======
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="#" class="nav-link modern-nav-link">
+                  <i class="fas fa-trophy mr-2"></i>
+                  <p>Performance</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="my_attendance.php" class="nav-link modern-nav-link">
+                  <i class="fas fa-calendar-check mr-2"></i>
+                  <p>Attendance</p>
+                </a>
+              </li>
+            </ul>
+>>>>>>> Stashed changes
           </li>
 
           

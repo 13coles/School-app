@@ -721,11 +721,6 @@
                                             </label>
                                         </div>
                                     </div>
-
-                                    <div class="form-group">
-                                        <label for="attendanceDate">Date</label>
-                                        <input type="date" class="form-control" id="attendanceDate" value="<?php echo date('Y-m-d'); ?>">
-                                    </div>
                                 </div>
                             </div>
                         </div>

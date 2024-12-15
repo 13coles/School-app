@@ -80,6 +80,7 @@
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['user_role'] = $user['user_role'];
                 $_SESSION['full_name'] = $user['full_name'];
+                $_SESSION['teacher_id'] = $user['teacher_id'];
 
                 # If the logged-in user is a teacher, fetch their section
                 if ($role === 'teacher') {
