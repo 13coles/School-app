@@ -106,6 +106,11 @@ if (isset($_GET['student_id'])) {
             </tr>
         </thead>
         <tbody>
+            <?php 
+                // Initialize variables for calculating the general average
+                $total_final_grades = 0;
+                $subject_count = 0;
+            ?>
             <?php foreach ($subjects as $subject): ?>
                 <tr>
                     <td><?php echo $subject['subject_name']; ?></td>
@@ -117,12 +122,12 @@ if (isset($_GET['student_id'])) {
 
                     <!-- 2nd Quarter -->
                     <td colspan="2" class="p-1">
-                         <?php echo $student_card["2nd_quarter"] ?? ''; ?>
+                        <?php echo $student_card["2nd_quarter"] ?? ''; ?>
                     </td>
 
                     <!-- 3rd Quarter -->
                     <td colspan="2" class="p-1">
-                         <?php echo $student_card["3rd_quarter"] ?? ''; ?>
+                        <?php echo $student_card["3rd_quarter"] ?? ''; ?>
                     </td>
 
                     <!-- 4th Quarter -->
@@ -131,12 +136,16 @@ if (isset($_GET['student_id'])) {
                     </td>
 
                     <?php 
-                        // Calculate final grade
+                        // Calculate the final grade for the subject
                         $first_quarter = $student_card["1st_quarter"] ?? 0;
                         $second_quarter = $student_card["2nd_quarter"] ?? 0;
                         $third_quarter = $student_card["3rd_quarter"] ?? 0;
                         $fourth_quarter = $student_card["4th_quarter"] ?? 0;
                         $final_grade = round(($first_quarter + $second_quarter + $third_quarter + $fourth_quarter) / 4);
+
+                        // Add final grade to total for general average calculation
+                        $total_final_grades += $final_grade;
+                        $subject_count++;
                     ?>
 
                     <!-- Final Grade -->
@@ -145,6 +154,23 @@ if (isset($_GET['student_id'])) {
                     </td>
                 </tr>
             <?php endforeach; ?>
+
+            <?php 
+                // Calculate general average if there are subjects
+                if ($subject_count > 0) {
+                    $general_avg = round($total_final_grades / $subject_count);
+                } else {
+                    $general_avg = 0; // Default to 0 if no subjects
+                }
+            ?>
+
+            <!-- Display General Average -->
+            <tr>
+                <td colspan="9" class="text-right"><strong>General Average</strong></td>
+                <td class="p-1">
+                    <?php echo $general_avg; ?>
+                </td>
+            </tr>
         </tbody>
     </table>
 

@@ -17,7 +17,7 @@
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column nav-compact" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item menu-open">
-            <a href="/admin/index.php" class="nav-link active modern-nav-link">
+            <a href="../admin/index.php" class="nav-link active modern-nav-link">
               <i class="nav-icon fas fa-home"></i>
               <p>Home</p>
             </a>  
@@ -57,10 +57,11 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="../admin/view_grades.php" class="nav-link modern-nav-link">
-                  <i class="fas fa-trophy mr-2"></i>
-                  <p>Performance</p>
-                </a>
+              <a href="../admin/performance.php" class="nav-link modern-nav-link">
+                <i class="fas fa-chart-line mr-2"></i>
+                <p>Performance</p>
+              </a>
+
               </li>
               <li class="nav-item">
                 <a href="../admin/attendance.php" class="nav-link modern-nav-link">

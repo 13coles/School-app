@@ -7,13 +7,9 @@
     checkAccess(['admin']);
     if (isset($_GET['student_id'])) {
         $student_id = $_GET['student_id'];
-    
-        // Fetch the student details
         $stmtStudent = $pdo->prepare("SELECT * FROM students WHERE id = :student_id");
         $stmtStudent->execute(['student_id' => $student_id]);
         $student = $stmtStudent->fetch(PDO::FETCH_ASSOC);
-    
-        // Fetch the subjects for the student
         $stmtSubjects = $pdo->prepare("
             SELECT subjects.id, subjects.subject_name 
             FROM student_subject 
@@ -104,10 +100,7 @@
                              
 
                                 <form method="POST" action="save_grades.php">
-                                    <!-- Hidden input for student_id -->
                                     <input type="hidden" name="student_id" value="<?php echo htmlspecialchars($student_id); ?>">
-
-                                    <!-- Dropdown to select the quarter -->
                                     <div class="form-group">
                                         <label for="quarter">Select Quarter:</label>
                                         <select name="quarter" id="quarter" class="form-control" required>
@@ -177,28 +170,18 @@
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                // Listen for changes in any input field with the class "grade-input"
                 document.querySelectorAll('.grade-input').forEach(function (input) {
                     input.addEventListener('input', function () {
-                        // Get the subject ID and the maximum allowed value
                         const subjectId = input.dataset.subjectId;
                         const maxAllowed = parseFloat(input.dataset.max);
-
-                        // Ensure the input does not exceed the max value
                         if (parseFloat(input.value) > maxAllowed) {
-                            input.value = maxAllowed; // Limit the value to the max
+                            input.value = maxAllowed; 
                         }
-
-                        // Fetch the values of written test, performance task, and exam
                         const writtenTest = parseFloat(document.querySelector(`input[name="grades[${subjectId}][written_test]"]`).value) || 0;
                         const performanceTask = parseFloat(document.querySelector(`input[name="grades[${subjectId}][performance_task]"]`).value) || 0;
                         const exm = parseFloat(document.querySelector(`input[name="grades[${subjectId}][exm]"]`).value) || 0;
-
-                        // Calculate the total grade
                         const totalGrade = writtenTest + performanceTask + exm;
-
-                        // Update the grade dynamically
-                        document.getElementById(`grade-${subjectId}`).innerText = totalGrade.toFixed(2); // Display with 2 decimal places
+                        document.getElementById(`grade-${subjectId}`).innerText = totalGrade.toFixed(2);
                     });
                 });
             });
