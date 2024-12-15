@@ -5,6 +5,17 @@
     require_once('../utils/access_control.php');
     
     checkAccess(['admin']);
+
+
+    // Fetch unique sections from the students table
+    $sections = [];
+    try {
+        $query = $pdo->prepare("SELECT DISTINCT section FROM students WHERE section IS NOT NULL AND section != ''");
+        $query->execute();
+        $sections = $query->fetchAll(PDO::FETCH_COLUMN);
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+    }
 ?>
 
 <!-- User management page -->
@@ -37,7 +48,9 @@
                     <div class="container-fluid">
                         <div class="row mb-2">
                             <div class="col-sm-6">
-                                <h1 class="m-0">Teachers Records</h1>
+
+                                <h1 class="m-0">Teacher Information</h1>
+
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
@@ -55,24 +68,25 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="d-flex justify-content-end align-items-center">
-                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUserModal">
+
+                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addTeacherModal">
+
                                         <i class="fas fa-plus-circle mr-1"></i> Add record
                                     </button>
                                 </div>
                             </div>
                             
                             <div class="card-body">
-                                <table id="studentTable" class="table table-bordered table-striped">
+
+                                <table id="teacherTable" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
-                                            <th>TCH-ID</th>
-                                            <th>Name</th>
-                                            <th class="text-center">Gender</th>
-                                            <th class="text-center">Assign to.</th>
+                                            <th>Teacher Identification Number</th>
+                                            <th>Full Name</th>
+                                            <th class="text-center">Sex</th>
+                                            <th class="text-center">Date of Birth</th>
+                                            <th class="text-center">Grade</th>
                                             <th class="text-center">Section</th>
-                                            <th class="text-center">No. Students</th>
-                                            <th>Municipality</th>
-                                            <th>Province</th>
                                             <th>Contact</th>
                                             <th class="text-center">Actions</th>
                                         </tr>
@@ -87,34 +101,39 @@
                 </div>
             </div>
 
-            <!-- Add teacher Info Modal -->
-            <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="false">
+
+            <!-- Add Student Info Modal -->
+            <div class="modal fade" id="addTeacherModal" tabindex="-1" role="dialog" aria-labelledby="addTeacherModalLabel" aria-hidden="false">
                 <div class="modal-dialog modal-dialog-scrollable modal-xl" style="max-width: 1200px;" role="document">
                     <div class="modal-content">
                         <div class="modal-header bg-primary">
-                            <h5 class="modal-title font-weight-bold" id="addUserModalLabel">
-                                <i class="fas fa-user-plus mr-2"></i>Teacher Information Form
+                            <h5 class="modal-title font-weight-bold" id="addTeacherModalLabel">
+                                <i class="fas fa-user-plus mr-2"></i>Teacher Assignment Form
                             </h5>
                             <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         
-                        <form id="addStudentRecord" method="POST" enctype="multipart/form-data">
+                        <form id="addTeacherRecord" method="POST" enctype="multipart/form-data">
                             <div class="modal-body">
                                 <div class="container-fluid">
                                     <!-- Personal Information Section -->
                                     <div class="row mb-3">
                                         <div class="col-12">
                                             <h4 class="border-bottom pb-2">
-                                                <i class="fas fa-user mr-2"></i>Personal Information
+
+                                                <i class="fas fa-user mr-2"></i>Teacher Information
+
                                             </h4>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="tin">Teacher Identification Number (TIN) <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="tin" name="tin" 
-                                                    placeholder="Enter Teacher ID" required>
+
+                                                <label for="teacher_id_num">Teacher Identification Number <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="teacher_id_num" name="teacher_id_num" 
+                                                    value="tch-" required readonly>
+
                                             </div>
                                         </div>
                                         <div class="col-md-8">
@@ -205,12 +224,48 @@
                                         </div>
                                     </div>
 
+
+                                    <!-- Assignment Information Section -->
+                                    <div class="row mb-3">
+                                        <div class="col-12">
+                                            <h4 class="border-bottom pb-2">
+                                                <i class="fas fa-graduation-cap mr-2"></i>Assignment Information
+                                            </h4>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="grade">Grade Level</label>
+                                                <select class="form-control" id="grade" name="grade" required>
+                                                    <option value="">Select Grade Level</option>
+                                                    <option value="Grade 7">Grade 7</option>
+                                                    <option value="Grade 8">Grade 8</option>
+                                                    <option value="Grade 9">Grade 9</option>
+                                                    <option value="Grade 10">Grade 10</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="section">Section</label>
+                                                <select class="form-control" id="section" name="section" required>
+                                                    <option value="">Select Section</option>
+                                                    <?php foreach ($sections as $section): ?>
+                                                        <option value="<?php echo htmlspecialchars($section); ?>"><?php echo htmlspecialchars($section); ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <i class="fas fa-times mr-1"></i>Cancel
                                 </button>
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save mr-1"></i>Create
+                                    <i class="fas fa-save mr-1"></i>Create Student Record
                                 </button>
                             </div>
                         </form>
@@ -218,13 +273,15 @@
                 </div>
             </div>
 
-            <!-- View Teacher Modal -->
-            <div class="modal fade" id="viewStudentModal" tabindex="-1" role="dialog" aria-labelledby="viewStudentModalLabel" aria-hidden="true">
+
+            <!-- View Student Modal -->
+            <div class="modal fade" id="viewTeacherModal" tabindex="-1" role="dialog" aria-labelledby="viewTeacherModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
                     <div class="modal-content">
                         <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title" id="viewStudentModalLabel">
-                                <i class="fas fa-user mr-2"></i>Student Details
+                            <h5 class="modal-title" id="viewTeacherModalLabel">
+                                <i class="fas fa-user mr-2"></i>Teacher Details
+
                             </h5>
                             <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -240,8 +297,10 @@
                                         </h4>
                                     </div>
                                     <div class="col-md-4">
-                                        <strong>LRN:</strong>
-                                        <p id="view_lrn" class="text-muted"></p>
+
+                                        <strong>Teacher Identification Number</strong>
+                                        <p id="view_teacher_id_num" class="text-muted"></p>
+
                                     </div>
                                     <div class="col-md-8">
                                         <strong>Full Name:</strong>
@@ -294,40 +353,13 @@
                                     </div>
                                 </div>
 
-                                <!-- Parent/Guardian Information Section -->
-                                <div class="row mb-3">
-                                    <div class="col-12">
-                                        <h4 class="border-bottom pb-2">
-                                            <i class="fas fa-users mr-2"></i>Parent/Guardian Information
-                                        </h4>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <strong>Father's Name:</strong>
-                                        <p id="view_father_name" class="text-muted"></p>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <strong>Mother's Name:</strong>
-                                        <p id="view_mother_name" class="text-muted"></p>
-                                    </div>
-                                    <div class="col-md-6 pt-2">
-                                        <strong>Guardian's Name:</strong>
-                                        <p id="view_guardian_name" class="text-muted"></p>
-                                    </div>
-                                    <div class="col-md-3 pt-2">
-                                        <strong>Relationship:</strong>
-                                        <p id="view_relationship" class="text-muted"></p>
-                                    </div>
-                                    <div class="col-md-3 pt-2">
-                                        <strong>Guardian/Parent Contact:</strong>
-                                        <p id="view_guardian_contact" class="text-muted"></p>
-                                    </div>
-                                </div>
 
-                                <!-- Academic Information Section -->
+                                <!-- Assignment Information Section -->
                                 <div class="row mb-3">
                                     <div class="col-12 pt-2">
                                         <h4 class="border-bottom pb-2">
-                                            <i class="fas fa-graduation-cap mr-2"></i>Academic Information
+                                            <i class="fas fa-graduation-cap mr-2"></i>Assignment Information
+
                                         </h4>
                                     </div>
                                     <div class="col-md-4">
@@ -338,14 +370,8 @@
                                         <strong>Section:</strong>
                                         <p id="view_section" class="text-muted"></p>
                                     </div>
-                                    <div class="col-md-4">
-                                        <strong>Learning Modality:</strong>
-                                        <p id="view_learning_modality" class="text-muted"></p>
-                                    </div>
-                                    <div class="col-12 pt-2">
-                                        <strong>Remarks:</strong>
-                                        <p id="view_remarks" class="text-muted"></p>
-                                    </div>
+
+
                                 </div>
                             </div>
                         </div>
@@ -358,22 +384,26 @@
                 </div>
             </div>
 
-            <!-- Edit Student modal -->
-            <div class="modal fade" id="editStudentModal" tabindex="-1" role="dialog" aria-labelledby="editStudentModalLabel">
+
+            <!-- Edit Teacher modal -->
+            <div class="modal fade" id="editTeacherModal" tabindex="-1" role="dialog" aria-labelledby="editTeacherModalLabel">
                 <div class="modal-dialog modal-dialog-scrollable modal-xl" style="max-width: 1200px;" role="document">
                     <div class="modal-content">
                         <div class="modal-header bg-primary">
-                            <h5 class="modal-title font-weight-bold" id="editStudentModalLabel">
-                                <i class="fas fa-user-plus mr-2"></i>Student Information Form
+                            <h5 class="modal-title font-weight-bold" id="editTeacherModalLabel">
+                                <i class="fas fa-user-plus mr-2"></i>Teacher's Information Form
+
                             </h5>
                             <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         
-                        <form id="editStudentRecord" method="POST" enctype="multipart/form-data">
+
+                        <form id="editTeacherRecord" method="POST" enctype="multipart/form-data">
                             <!-- Hidden input that will take the student id selected -->
-                             <input type="hidden" name="edit_student_id" id="edit_student_id">
+                             <input type="hidden" name="edit_teacher_id" id="edit_teacher_id">
+
                             <div class="modal-body">
                                 <div class="container-fluid">
                                     <!-- Personal Information Section -->
@@ -385,9 +415,11 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="edit_lrn">Learner Reference Number (LRN) <span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" id="edit_lrn" name="lrn" 
-                                                    placeholder="Enter 12-digit LRN" required pattern="\d{12}">
+
+                                                <label for="edit_teacher_id_num">Learner Reference Number (LRN) <span class="text-danger">*</span></label>
+                                                <input type="text" class="form-control" id="edit_teacher_id_num" name="teacher_id_num" 
+                                                    placeholder="Enter 12-digit LRN" required readonly>
+
                                             </div>
                                         </div>
                                         <div class="col-md-8">
@@ -478,55 +510,13 @@
                                         </div>
                                     </div>
 
-                                    <!-- Parent/Guardian Information Section -->
-                                    <div class="row mb-3">
-                                        <div class="col-12">
-                                            <h4 class="border-bottom pb-2">
-                                                <i class="fas fa-users mr-2"></i>Parent/Guardian Information
-                                            </h4>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="edit_father_name">Father's Name</label>
-                                                <input type="text" class="form-control" id="edit_father_name" name="father_name" 
-                                                    placeholder="Enter Father's Full Name">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="edit_mother_name">Mother's Name</label>
-                                                <input type="text" class="form-control" id="edit_mother_name" name="mother_name" 
-                                                    placeholder="Enter Mother's Full Name">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="guardian_name">Guardian's Name</label>
-                                                <input type="text" class="form-control" id="edit_guardian_name" name="guardian_name" 
-                                                    placeholder="Enter Guardian's Full Name">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                            <label for="edit_guardian_relationship">Relationship</label>
-                                                <input type="text" class="form-control" id="edit_guardian_relationship" name="relationship" 
-                                                    placeholder="e.g., Aunt, Uncle">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <div class="form-group">
-                                                <label for="edit_guardian_contact">Guardian's Contact</label>
-                                                <input type="tel" class="form-control" id="edit_guardian_contact" name="guardian_contact" 
-                                                    placeholder="Contact Number" pattern="[0-9]{10,11}">
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <!-- Academic Information Section -->
+                                    <!-- Assignment Information Section -->
                                     <div class="row mb-3">
                                         <div class="col-12">
                                             <h4 class="border-bottom pb-2">
-                                                <i class="fas fa-graduation-cap mr-2"></i>Academic Information
+                                                <i class="fas fa-graduation-cap mr-2"></i>Assignment Information
+
                                             </h4>
                                         </div>
                                         <div class="col-md-4">
@@ -544,29 +534,15 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="edit_section">Section</label>
-                                                <input type="text" class="form-control" id="edit_section" name="section" 
-                                                    placeholder="Enter Section Name" required>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="edit_learning_modality">Learning Modality</label>
-                                                <select class="form-control" id="edit_learning_modality" name="learning_modality" required>
-                                                    <option value="">Select Learning Modality</option>
-                                                    <option value="Face-to-Face">Face-to-Face</option>
-                                                    <option value="Online">Online</option>
-                                                    <option value="Modular">Modular</option>
-                                                    <option value="Blended">Blended</option>
+                                                <select class="form-control" id="edit_section" name="section" required>
+                                                    <option value="">Select Section</option>
+                                                    <?php foreach ($sections as $section): ?>
+                                                        <option value="<?php echo htmlspecialchars($section); ?>"><?php echo htmlspecialchars($section); ?></option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-12">
-                                            <div class="form-group">
-                                                <label for="edit_remarks">Remarks</label>
-                                                <textarea class="form-control" id="edit_remarks" name="remarks" 
-                                                    rows="3" placeholder="Enter any additional information or remarks"></textarea>
-                                            </div>
-                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -584,7 +560,58 @@
                 </div>
             </div>
 
-            
+
+            <!-- Attendance Modal -->
+            <div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-labelledby="attendanceModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-light">
+                            <h5 class="modal-title" id="attendanceModalLabel">
+                                <i class="fas fa-calendar-check mr-2 text-success"></i>
+                                Attendance for John Doe
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row justify-content-center">
+                                <div class="col-md-10">
+                                    <div class="form-group">
+                                        <label class="d-block">Attendance Status</label>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input type="radio" id="presentRadio" name="attendanceStatus" class="custom-control-input" value="present">
+                                            <label class="custom-control-label text-success" for="presentRadio">
+                                                <i class="fas fa-check-circle mr-1"></i>Present
+                                            </label>
+                                        </div>
+                                        <div class="custom-control custom-radio custom-control-inline">
+                                            <input type="radio" id="absentRadio" name="attendanceStatus" class="custom-control-input" value="absent">
+                                            <label class="custom-control-label text-danger" for="absentRadio">
+                                                <i class="fas fa-times-circle mr-1"></i>Absent
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="attendanceDate">Date</label>
+                                        <input type="date" class="form-control" id="attendanceDate" value="<?php echo date('Y-m-d'); ?>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                <i class="fas fa-times mr-1"></i>Cancel
+                            </button>
+                            <button type="button" class="btn btn-primary" id="saveAttendance">
+                                <i class="fas fa-save mr-1"></i>Save Attendance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Footer component -->
             <?php include('../components/footer.php');?>
         </div>
@@ -599,6 +626,7 @@
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-        <script src="../assets/js/student.js"></script>
+
+        <script src="../assets/js/teachers.js"></script>
     </body>
 </html>

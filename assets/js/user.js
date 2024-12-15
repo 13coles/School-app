@@ -1,4 +1,28 @@
 $(document).ready(function() {
+    let userTable = $('#studentTable').DataTable({
+        "responsive": true,
+        "lengthChange": true,
+        "autoWidth": false,
+        "pageLength": 10,
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "language": {
+            "search": "Search users:",
+            "lengthMenu": "Show _MENU_ entries",
+            "zeroRecords": "No matching users found",
+            "info": "Showing _START_ to _END_ of _TOTAL_ users",
+            "infoEmpty": "No users available",
+            "infoFiltered": "(filtered from _MAX_ total users)"
+        },
+        "columnDefs": [
+            { 
+                "orderable": false, 
+                "targets": -1 
+            }
+        ]
+    });
+
+    let index = 1;
+
     function loadUsers() {
         $.ajax({
             url: 'fetch_users.php',
@@ -6,39 +30,39 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.status === 'success') {
-                    $('#studentTable tbody').empty();
+                    // $('#studentTable tbody').empty();
+                    userTable.clear();
     
                     response.users.forEach(user => {
-                        let row = `
-                            <tr>
-                                <td class="text-center">${user.id}</td>
-                                <td>${user.full_name}</td>
-                                <td>${user.username}</td>
-                                <td>${user.email}</td>
-                                <td>${user.contact_number || 'N/A'}</td>
-                                <td class="text-center">${user.user_role}</td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown${user.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="actionDropdown${user.id}">
-                                            <a class="dropdown-item edit-user" href="#" data-id="${user.id}">
-                                                <i class="fas fa-edit text-warning mr-2"></i> Edit
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item delete-user text-danger" href="#" data-id="${user.id}">
-                                                <i class="fas fa-trash text-danger mr-2"></i> Delete
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        $('#studentTable tbody').append(row);
+
+                        userTable.row.add([
+                            index++,
+                            user.full_name,
+                            user.username,
+                            user.email,
+                            user.contact_number || 'N/A',
+                            user.user_role,
+                            `
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown${user.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="actionDropdown${user.id}">
+                                    <a class="dropdown-item edit-user" href="#" data-id="${user.id}">
+                                        <i class="fas fa-edit text-warning mr-2"></i> Edit
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item delete-user text-danger" href="#" data-id="${user.id}">
+                                        <i class="fas fa-trash text-danger mr-2"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                            `
+                        ]);
                     });
-                   
-                    $('[data-toggle="tooltip"]').tooltip();
+
+                    // Load table
+                    userTable.draw();
 
                 } else {
                     console.error('Failed to load users:', response.message);
@@ -207,7 +231,7 @@ $(document).ready(function() {
         });
     });
 
-    // trigger initial role change to set up username field
+    // trigger role change to set up username field
     $('#user_role').trigger('change');
 
     // edit user - fetch user details
@@ -236,7 +260,6 @@ $(document).ready(function() {
                     $('#edit_contact_number').val(user.contact_number || '');
                     $('#edit_user_role').val(user.user_role);
 
-                    // clear password field
                     $('#edit_password').val('');
 
                     $('#editUserModal').modal('show');
@@ -328,13 +351,12 @@ $(document).ready(function() {
         });
     });
 
-
     // delete user functionality
     $(document).on('click', '.delete-user', function(e) {
         e.preventDefault();
         
         const userId = $(this).data('id');
-        const userRow = $(this).closest('tr');
+        const clickedRow = $(this).closest('tr');
 
         Swal.fire({
             title: 'Are you sure?',
@@ -356,6 +378,11 @@ $(document).ready(function() {
                     dataType: 'json',
                     success: function(response) {
                         if (response.status === 'success') {
+                            userTable
+                                .row(clickedRow)
+                                .remove()
+                                .draw();
+
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Deleted!',
@@ -363,13 +390,6 @@ $(document).ready(function() {
                                 timer: 2000,
                                 showConfirmButton: false
                             });
-
-                            // remove the row from the table
-                            userRow.fadeOut(500, function() {
-                                $(this).remove();
-                            });
-
-                            loadUsers();
                         } else {
                             Swal.fire({
                                 icon: 'error',

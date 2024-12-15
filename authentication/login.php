@@ -80,6 +80,23 @@
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['user_role'] = $user['user_role'];
                 $_SESSION['full_name'] = $user['full_name'];
+
+                # If the logged-in user is a teacher, fetch their section
+                if ($role === 'teacher') {
+                    $teacherId = $user['teacher_id']; // Assuming this is the foreign key in the users table
+                    
+                    // Fetch the teacher's section using the teacher_id foreign key
+                    $teacherQuery = $pdo->prepare("SELECT section FROM teachers WHERE id = ?");
+                    $teacherQuery->execute([$teacherId]);
+                    $teacher = $teacherQuery->fetch(PDO::FETCH_ASSOC);
+            
+                    if ($teacher) {
+                        $_SESSION['teacher_section'] = $teacher['section']; // Store the teacher's section in the session
+                    } else {
+                        logError("No corresponding teacher record found for teacher ID: $teacherId");
+                        $_SESSION['teacher_section'] = false; // Set to false if no section found
+                    }
+                }
             
                 # if the logged in user is a student, get the student id and store it
                 if ($role === 'student') {

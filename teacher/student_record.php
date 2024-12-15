@@ -5,6 +5,19 @@
     require_once('../utils/access_control.php');
     
     checkAccess(['teacher']);
+
+    // After checking access
+    $teacher_id = $_SESSION['id']; 
+
+    // Fetch the teacher's section
+    $teacher_section = '';
+    try {
+        $query = $pdo->prepare("SELECT section FROM teachers WHERE id = ?");
+        $query->execute([$teacher_id]);
+        $teacher_section = $query->fetchColumn();
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+    }
 ?>
 
 <!-- User management page -->

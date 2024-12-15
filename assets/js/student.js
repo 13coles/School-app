@@ -1,4 +1,26 @@
 $(document).ready(function() {
+    let studentTable = $('#studentTable').DataTable({
+        "responsive": true,
+        "lengthChange": true,
+        "autoWidth": false,
+        "pageLength": 10,
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "language": {
+            "search": "Search students:",
+            "lengthMenu": "Show _MENU_ entries",
+            "zeroRecords": "No matching students found",
+            "info": "Showing _START_ to _END_ of _TOTAL_ students",
+            "infoEmpty": "No students available",
+            "infoFiltered": "(filtered from _MAX_ total students)"
+        },
+        "columnDefs": [
+            { 
+                "orderable": false, 
+                "targets": -1 
+            }
+        ]
+    });
+
     // same2 lng sa iban
     function combineNames() {
         let lastName = $('#last_name').val() ? $('#last_name').val().trim() : '';
@@ -71,13 +93,14 @@ $(document).ready(function() {
             errorFields: errorFields
         };
     }
+
     $('#addStudentRecord').on('submit', function(e) {
         e.preventDefault();
     
         $('.is-invalid').removeClass('is-invalid');
-
+    
         const validation = validateForm();
-
+    
         if (!validation.isValid) {
             Swal.fire({
                 icon: 'error',
@@ -88,12 +111,8 @@ $(document).ready(function() {
             });
             return false;
         }
-
-        let formData = new FormData(this);
     
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ': ' + pair[1]);
-        }
+        let formData = new FormData(this);
     
         $.ajax({
             url: 'create_student_record.php',
@@ -103,32 +122,49 @@ $(document).ready(function() {
             contentType: false,
             dataType: 'json',
             success: function(response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Student Record Created',
-                    text: `Student record created with LRN: ${response.lrn}`,
-                    showConfirmButton: true
-                }).then(() => {
-                    $('#addStudentRecord')[0].reset();
-                    
-                    $('#addUserModal').modal('hide');
-
-                    loadStudents();
-                });
+                console.log('Full Server Response:', response);
+    
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Student Record Created',
+                        text: `Student record created successfully with LRN: ${response.lrn}`, 
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        $('#addStudentRecord')[0].reset();
+                        $('#addUserModal').modal('hide');
+    
+                        loadStudents();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Failed to create student record',
+                        showConfirmButton: true
+                    });
+                }
             },
             error: function(xhr, status, error) {
+                console.error('Full AJAX Error:', {
+                    status: status,
+                    error: error,
+                    responseText: xhr.responseText
+                });
+    
                 let errorMessage = 'An unexpected error occurred';
                 
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    errorMessage = xhr.responseJSON.message;
-                } else if (xhr.statusText) {
-                    errorMessage = xhr.statusText;
+                try {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    errorMessage = errorResponse.message || errorMessage;
+                } catch (e) {
+                    errorMessage = xhr.statusText || errorMessage;
                 }
-                console.error('Full error:', xhr.responseText);
     
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
+                    title: 'Submission Error',
                     text: errorMessage,
                     showConfirmButton: true
                 });
@@ -156,73 +192,87 @@ $(document).ready(function() {
             type: 'GET',
             dataType: 'json',
             success: function(response) {
-                if (response.status === 'success') {
-                    $('#studentTable tbody').empty();
+                console.log('Fetch Students Response:', response); 
     
+                if (response.status === 'success' && response.students && response.students.length > 0) {
+                    studentTable.clear();
+        
                     response.students.forEach(student => {
-                        let row = `
-                            <tr>
-                                <td>${student.lrn}</td>
-                                <td>${student.full_name}</td>
-                                <td class="text-center">${student.sex}</td>
-                                <td class="text-center">${student.grade}</td>
-                                <td class="text-center">${student.section}</td>
-                                <td class="text-center">${student.barangay}</td>
-                                <td>${student.municipality}</td>
-                                <td>${student.province}</td>
-                                <td>${student.contact_number}</td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown${student.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="actionDropdown${student.id}">
-                                            <a class="dropdown-item view-student" data-id="${student.id}" style="cursor:default;">
-                                                <i class="fas fa-eye text-info mr-2"></i> View Details
-                                            </a>
-                                            <a class="dropdown-item view-grades" href="../admin/view_grades.php?student_id=${student.id}" style="cursor:default;">
+
+                        studentTable.row.add([
+                            student.lrn,
+                            student.full_name,
+                            student.sex,
+                            student.grade,
+                            student.section,
+                            student.barangay,
+                            student.municipality,
+                            student.province,
+                            student.contact_number,
+                            `
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown${student.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="actionDropdown${student.id}">
+                                    <a class="dropdown-item view-student" data-id="${student.id}" style="cursor:default;">
+                                        <i class="fas fa-eye text-info mr-2"></i> View Details
+                                    </a>
+                                     <a class="dropdown-item view-grades" href="../admin/view_grades.php?student_id=${student.id}" style="cursor:default;">
                                                 <i class="fas fa-book-open text-info mr-2"></i> View Card
                                             </a>
                                             <a class="dropdown-item view-grades" href="../admin/add_grade.php?student_id=${student.id}" style="cursor:default;">
                                                 <i class="fas fa-pencil-alt text-info mr-2"></i> Add Grade
                                             </a>
+                                    <a class="dropdown-item view-attendance" style="cursor:default;">
+                                        <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
+                                    </a>
+                                    <a class="dropdown-item edit-student" data-id="${student.id}" data-toggle="modal" data-target="#editStudentModal" style="cursor:default;">
+                                        <i class="fas fa-edit text-success mr-2"></i>Edit
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item delete-student text-danger" data-id="${student.id}" style="cursor:default;">
+                                        <i class="fas fa-archive text-danger mr-2"></i> Archive
+                                    </a>
+                                </div>
+                            </div>
+                            `,
+                            student.id
+                        ]);
 
-                                            <a class="dropdown-item view-grades" style="cursor:default;">
-                                                <i class="fas fa-user-check text-warning mr-2"></i> Attendance
-                                            </a>
-                                            <a class="dropdown-item edit-student" data-id="${student.id}" data-toggle="modal" data-target="#editStudentModal" style="cursor:default;">
-                                                <i class="fas fa-edit text-success mr-2"></i> Edit
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item delete-student text-danger" data-id="${student.id}" style="cursor:default;">
-                                                <i class="fas fa-trash-alt text-danger mr-2"></i> Archive
-                                            </a>
-                                        </div>
-
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        $('#studentTable tbody').append(row);
                     });
-                   
-                    $('[data-toggle="tooltip"]').tooltip();
     
+                    studentTable.draw();
+    
+                    console.log(`Loaded ${response.students.length} students`); 
                 } else {
-                    console.error('Failed to load students:', response.message);
+                    console.warn('No students found or invalid response:', response);
+                    
+                    studentTable.clear().draw();
+                    
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message || 'Failed to load students'
+                        icon: 'info',
+                        title: 'No Students',
+                        text: response.message || 'No student records found'
                     });
                 }
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
+                console.error('AJAX Error Details:');
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Response Text:', xhr.responseText);
+    
                 Swal.fire({
                     icon: 'error',
                     title: 'Network Error',
-                    text: 'Could not fetch students. Please try again.'
+                    html: `
+                        Could not fetch students. 
+                        <br>Status: ${status}
+                        <br>Error: ${error}
+                        <br>Check console for more details.
+                    `,
+                    showConfirmButton: true
                 });
             }
         });
@@ -433,6 +483,10 @@ $(document).ready(function() {
         formData.set('full_name', fullName);
         formData.set('student_id', $('#edit_student_id').val());
         
+        // for (let pair of formData.entries()) {
+        //     console.log(pair[0] + ': ' + pair[1]);
+        // }
+        
         $.ajax({
             url: 'update_student_details.php',
             type: 'POST',
@@ -440,46 +494,157 @@ $(document).ready(function() {
             processData: false,
             contentType: false,
             dataType: 'json',
+            beforeSend: function() {
+                $('#editStudentRecord button[type="submit"]')
+                    .prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm mr-1"></span>Updating...');
+            },
             success: function(response) {
+                console.log('Update Response:', response);
+
                 if (response.status === 'success') {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
-                        text: 'Student record updated successfully',
+                        text: response.message || 'Student record updated successfully',
                         timer: 1500,
                         showConfirmButton: false
                     }).then(() => {
                         $('#editStudentModal').modal('hide');
-                        loadStudents();
+                        
+                        setTimeout(loadStudents, 300);
                     });
                 } else {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: response.message || 'Could not update student record'
+                        text: response.message || 'Could not update student record',
+                        showConfirmButton: true
                     });
                 }
             },
             error: function(xhr, status, error) {
-                console.error('Update error:', xhr.responseText);
+                console.error('Full Update Error:', {
+                    status: status,
+                    error: error,
+                    responseText: xhr.responseText
+                });
+
+                let errorMessage = 'Could not update student record';
+                
+                try {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    errorMessage = errorResponse.message || errorMessage;
+                } catch (e) {
+                    errorMessage = xhr.statusText || errorMessage;
+                }
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Update Error',
+                    text: errorMessage,
+                    showConfirmButton: true
+                });
+            },
+            complete: function() {
+                $('#editStudentRecord button[type="submit"]')
+                    .prop('disabled', false)
+                    .html('Update Student');
+            }
+        });
+    });
+
+    // Attendance modal trigger
+    $(document).on('click', '.view-attendance', function() {
+        const row = $(this).closest('tr'); 
+        const studentId = studentTable.row(row).data()[10]; 
+        const studentName = row.find('td:nth-child(2)').text(); 
+        
+        $('#student_id').val(studentId);
+    
+        $('#attendanceModalLabel').html(`
+            <i class="fas fa-calendar-check mr-2 text-success"></i>
+            Attendance for ${studentName}
+        `);
+    
+        $('#attendanceModal').modal('show'); // Show the modal
+    }); 
+
+    // Save attendance (AJAX submission)
+    $('#attendanceForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent the form from submitting the traditional way
+        
+        const studentId = $('#student_id').val(); // Get the student ID from the hidden input
+        const attendanceStatus = $('input[name="attendance"]:checked').val(); // Get the selected attendance status
+        
+        if (!attendanceStatus) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Attendance Status Selected',
+                text: 'Please select either Present or Absent.',
+            });
+            return;
+        }
+
+        const attendanceDate = new Date().toISOString().split('T')[0]; // Get the current date in YYYY-MM-DD format
+
+        console.log({
+            student_id: studentId,
+            attendance_date: attendanceDate,
+            attendance: attendanceStatus
+        }); // Log the data being sent
+
+        // AJAX request to save attendance
+        $.ajax({
+            url: 'student_attendance.php', 
+            type: 'POST',
+            data: {
+                student_id: studentId,
+                attendance_date: attendanceDate,
+                attendance: attendanceStatus
+            },
+            dataType: 'json',
+            success: function(response) {
+                console.log('Response:', response);
+                if (response.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Attendance Saved',
+                        text: 'Attendance has been recorded successfully.',
+                    }).then(() => {
+                        resetAttendanceModal();
+                        $('#attendanceModal').modal('hide'); 
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.message || 'Failed to save attendance.',
+                    });
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error saving attendance:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Network Error',
-                    text: xhr.responseJSON?.message || 'Could not update student record. Please try again.'
+                    text: 'Could not save attendance. Please try again.',
                 });
             }
         });
     });
 
-    // attendance modal trigger
-    $(document).on('click', '.view-grades', function() {
-        const studentName = $(this).closest('tr').find('td:nth-child(2)').text();
+    function resetAttendanceModal() {
+        // Clear the radio button selection
+        $('input[name="attendance"]').prop('checked', false);
         
+        // Clear the hidden input for student_id
+        $('#student_id').val('');
+        
+        // Reset the modal label to default
         $('#attendanceModalLabel').html(`
             <i class="fas fa-calendar-check mr-2 text-success"></i>
-            Attendance for ${studentName}
+            Attendance
         `);
-
-        $('#attendanceModal').modal('show');
-    });
+    }
 });
