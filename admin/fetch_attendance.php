@@ -6,37 +6,65 @@ header('Content-Type: application/json');
 try {
     // Handle GET request
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Fetch attendance records with an INNER JOIN
-        $query = "
-            SELECT 
-                a.student_id, 
-                s.lrn, 
-                s.full_name, 
-                s.sex, 
-                s.grade, 
-                s.section, 
-                a.attendance, 
-                a.attendance_date 
-            FROM 
-                students s
-            INNER JOIN 
-                attendance a ON s.id = a.student_id
-        ";
-
-        $query = $pdo->prepare($query);
-        $query->execute();
-        $attendanceRecords = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode([
-            'status' => 'success',
-            'attendance' => $attendanceRecords
-        ]);
-    } 
-    // Handle POST request
+        // Get the date from the request, default to today if not provided
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            // Get the date from the request, default to today if not provided
+            $date = $_GET['date'] ?? date('Y-m-d');
+            $teacherId = $_GET['teacher_id'] ?? null;
+    
+            // Comprehensive query to fetch attendance with student details
+            $query = "
+                SELECT 
+                    a.id AS attendance_record_id,
+                    a.student_id, 
+                    a.attendance_date,
+                    a.attendance,
+                    s.lrn, 
+                    s.full_name, 
+                    s.sex, 
+                    s.grade, 
+                    s.section,
+                    t.id AS teacher_id,
+                    t.full_name AS teacher_name
+                FROM 
+                    attendance a
+                JOIN 
+                    students s ON a.student_id = s.id
+                LEFT JOIN 
+                    teachers t ON a.teacher_id = t.id
+                WHERE 
+                    a.attendance_date = :attendance_date
+            ";
+    
+            // Prepare parameters
+            $params = [':attendance_date' => $date];
+    
+            // Add teacher filter if provided
+            if ($teacherId) {
+                $query .= " AND a.teacher_id = :teacher_id";
+                $params[':teacher_id'] = $teacherId;
+            }
+    
+            $query .= " ORDER BY s.full_name";
+    
+            // Prepare and execute query
+            $stmt = $pdo->prepare($query);
+            $stmt->execute($params);
+            $attendanceRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+            // If no records found, return an empty array instead of throwing an error
+            echo json_encode([
+                'status' => 'success',
+                'attendance' => $attendanceRecords,
+                'message' => $attendanceRecords ? 'Records found' : 'No records found'
+            ]);
+        }
+    }
+    // Handle POST request for updating attendance
     elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $studentId = $_POST['student_id'] ?? null;
         $attendanceStatus = $_POST['attendance'] ?? null;
-        $attendanceDate = $_POST['attendance_date'] ?? date('Y-m-d'); // Default to today if no date is provided
+        $attendanceDate = $_POST['attendance_date'] ?? date('Y-m-d'); 
 
         // Ensure that student_id and attendance are provided
         if ($studentId && $attendanceStatus) {

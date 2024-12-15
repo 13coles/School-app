@@ -498,8 +498,12 @@ $(document).ready(function() {
 
     // attendance modal trigger
     $(document).on('click', '.attendance', function() {
-        // get student details from the table row
+        // Get the student ID directly from the data attribute
+        const studentId = $(this).closest('tr').find('.edit-student').data('id');
         const studentName = $(this).closest('tr').find('td:nth-child(2)').text();
+        
+        // Store the student ID in the modal for later use
+        $('#attendanceModal').data('student-id', studentId);
         
         // set student name in modal based from the selected table row
         $('#attendanceModalLabel').html(`
@@ -509,5 +513,63 @@ $(document).ready(function() {
 
         // show attendance modal
         $('#attendanceModal').modal('show');
+    });
+
+    // In your student_record.js or wherever the attendance logic is
+    $('#saveAttendance').on('click', function() {
+        // Get the student ID from the modal's data attribute
+        const studentId = $('#attendanceModal').data('student-id');
+        const studentName = $('#attendanceModalLabel').text().replace('Attendance for ', '').trim();
+        const attendanceStatus = $('input[name="attendanceStatus"]:checked').val();
+
+        // Validate attendance selection
+        if (!attendanceStatus) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Attendance Required',
+                text: 'Please select an attendance status for ' + studentName
+            });
+            return;
+        }
+
+        // Debugging logs
+        console.log('Student ID:', studentId);
+        console.log('Student Name:', studentName);
+        console.log('Attendance Status:', attendanceStatus);
+
+        // AJAX request to save attendance
+        $.ajax({
+            url: 'add_attendance.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                student_id: studentId,
+                attendance: attendanceStatus
+            },
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Attendance Recorded',
+                    text: `Attendance for ${studentName} marked as ${attendanceStatus}`
+                });
+
+                // Close the attendance modal
+                $('#attendanceModal').modal('hide');
+            },
+            error: function(xhr, status, error) {
+                console.error('Attendance Error:', xhr);
+                console.error('Response Text:', xhr.responseText);
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Attendance Error',
+                    text: xhr.responseJSON?.message || 'Failed to record attendance',
+                    html: `
+                        <p>${xhr.responseJSON?.message || 'Unknown error'}</p>
+                        <small>Check browser console for details</small>
+                    `
+                });
+            }
+        });
     });
 });

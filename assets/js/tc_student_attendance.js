@@ -39,7 +39,6 @@ function loadAttendance() {
 
                 response.attendance.forEach((record) => {
                     attendanceTable.row.add([
-                        record.student_id,
                         record.lrn,
                         record.full_name,
                         record.sex || 'N/A',
@@ -66,6 +65,7 @@ function loadAttendance() {
                             </div>
                         </div>
                         `,
+                        record.student_id,
                     ]);
                 });
 

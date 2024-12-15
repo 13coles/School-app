@@ -16,6 +16,8 @@
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+            <!-- Bootstrap Datepicker CSS -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
             <link rel="stylesheet" href="../assets//css/students_modal.css">
     </head>
     <body class="hold-transition sidebar-mini">
@@ -37,7 +39,7 @@
                     <div class="container-fluid">
                         <div class="row mb-2">
                             <div class="col-sm-6">
-                                <h1 class="m-0">Student Records</h1>
+                                <h1 class="m-0">Attendance Record</h1>
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
@@ -53,19 +55,25 @@
                 <div class="content">
                     <div class="container-fluid">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="d-flex justify-content-end align-items-center">
-                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addUserModal">
-                                        <i class="fas fa-plus-circle mr-1"></i> Add record
-                                    </button>
-                                </div>
-                            </div>
-                            
                             <div class="card-body">
+                                <!-- Filters -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="filterByDate">Filter by Date</label>
+                                        <input type="text" id="datepicker" class="form-control" placeholder="Select a date">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="filterByTeacher">Filter by Teacher</label>
+                                        <select id="filterByTeacher" class="form-control">
+                                            <option value="">All Teachers</option>
+                                            <!-- Populate dynamically via JS -->
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <table id="attendanceTable" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
-                                            <th>LRN</th>
                                             <th>LRN</th>
                                             <th>Name</th>
                                             <th class="text-center">Gender</th>
@@ -149,6 +157,9 @@
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+        <!-- Bootstrap Datepicker JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
         <script src="../assets/js/attendance.js"></script>
     </body>
 </html>

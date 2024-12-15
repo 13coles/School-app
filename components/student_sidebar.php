@@ -16,33 +16,43 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column nav-compact" data-widget="treeview" role="menu" data-accordion="false">
-          
-          <!-- Home Section -->
           <li class="nav-item menu-open">
             <a href="home.php" class="nav-link active modern-nav-link">
-              <i class="nav-icon fas fa-tachometer-alt"></i>  
+              <i class="nav-icon fas fa-home"></i>
               <p>Home</p>
             </a>  
           </li>
 
-          <!-- My Record Section -->
           <li class="nav-item">
             <a href="my_record.php" class="nav-link modern-nav-link">
-              <i class="nav-icon fas fa-address-card"></i> 
+              <i class="nav-icon fas fa-user"></i>
               <p>My Record</p>
             </a>
           </li>
 
-          <!-- Report Card Section -->
           <li class="nav-item">
-            <a href="report_card.php" class="nav-link modern-nav-link">
-              <i class="nav-icon fas fa-file-alt"></i> 
-              <p>Report Card</p>
+            <a href="#" class="nav-link modern-nav-link">
+              <i class="nav-icon fas fa-file-alt"></i>
+              <p>
+                Reports
+                <i class="fas fa-angle-left right"></i>
+              </p>
             </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="my_grade.php" class="nav-link modern-nav-link">
+                  <i class="fas fa-trophy mr-2"></i>
+                  <p>Performance</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="my_attendance.php" class="nav-link modern-nav-link">
+                  <i class="fas fa-calendar-check mr-2"></i>
+                  <p>Attendance</p>
+                </a>
+              </li>
+            </ul>
           </li>
-
-          
-          
         </ul>
       </nav>
     </div>
