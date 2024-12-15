@@ -198,6 +198,7 @@ $(document).ready(function() {
                     studentTable.clear();
         
                     response.students.forEach(student => {
+
                         studentTable.row.add([
                             student.lrn,
                             student.full_name,
@@ -217,9 +218,12 @@ $(document).ready(function() {
                                     <a class="dropdown-item view-student" data-id="${student.id}" style="cursor:default;">
                                         <i class="fas fa-eye text-info mr-2"></i> View Details
                                     </a>
-                                    <a class="dropdown-item view-grades" href="../admin/view_grades.php" style="cursor:default;">
-                                        <i class="fas fa-list-alt text-info mr-2"></i> View Grades
-                                    </a>
+                                     <a class="dropdown-item view-grades" href="../admin/view_grades.php?student_id=${student.id}" style="cursor:default;">
+                                                <i class="fas fa-book-open text-info mr-2"></i> View Card
+                                            </a>
+                                            <a class="dropdown-item view-grades" href="../admin/add_grade.php?student_id=${student.id}" style="cursor:default;">
+                                                <i class="fas fa-pencil-alt text-info mr-2"></i> Add Grade
+                                            </a>
                                     <a class="dropdown-item view-attendance" style="cursor:default;">
                                         <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
                                     </a>
@@ -235,6 +239,7 @@ $(document).ready(function() {
                             `,
                             student.id
                         ]);
+
                     });
     
                     studentTable.draw();

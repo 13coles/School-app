@@ -6,6 +6,7 @@
     
     checkAccess(['admin']);
 
+
     // Fetch unique sections from the students table
     $sections = [];
     try {
@@ -47,12 +48,14 @@
                     <div class="container-fluid">
                         <div class="row mb-2">
                             <div class="col-sm-6">
+
                                 <h1 class="m-0">Teacher Information</h1>
+
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
                                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                    <li class="breadcrumb-item active">Student Information</li>
+                                    <li class="breadcrumb-item active">Teacher Information</li>
                                 </ol>
                             </div>
                         </div>
@@ -65,13 +68,16 @@
                         <div class="card">
                             <div class="card-header">
                                 <div class="d-flex justify-content-end align-items-center">
+
                                     <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addTeacherModal">
+
                                         <i class="fas fa-plus-circle mr-1"></i> Add record
                                     </button>
                                 </div>
                             </div>
                             
                             <div class="card-body">
+
                                 <table id="teacherTable" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
@@ -95,6 +101,7 @@
                 </div>
             </div>
 
+
             <!-- Add Student Info Modal -->
             <div class="modal fade" id="addTeacherModal" tabindex="-1" role="dialog" aria-labelledby="addTeacherModalLabel" aria-hidden="false">
                 <div class="modal-dialog modal-dialog-scrollable modal-xl" style="max-width: 1200px;" role="document">
@@ -115,14 +122,18 @@
                                     <div class="row mb-3">
                                         <div class="col-12">
                                             <h4 class="border-bottom pb-2">
+
                                                 <i class="fas fa-user mr-2"></i>Teacher Information
+
                                             </h4>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
+
                                                 <label for="teacher_id_num">Teacher Identification Number <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" id="teacher_id_num" name="teacher_id_num" 
                                                     value="tch-" required readonly>
+
                                             </div>
                                         </div>
                                         <div class="col-md-8">
@@ -213,6 +224,7 @@
                                         </div>
                                     </div>
 
+
                                     <!-- Assignment Information Section -->
                                     <div class="row mb-3">
                                         <div class="col-12">
@@ -247,6 +259,7 @@
                                 </div>
                             </div>
 
+
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <i class="fas fa-times mr-1"></i>Cancel
@@ -260,6 +273,7 @@
                 </div>
             </div>
 
+
             <!-- View Student Modal -->
             <div class="modal fade" id="viewTeacherModal" tabindex="-1" role="dialog" aria-labelledby="viewTeacherModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl" role="document">
@@ -267,6 +281,7 @@
                         <div class="modal-header bg-primary text-white">
                             <h5 class="modal-title" id="viewTeacherModalLabel">
                                 <i class="fas fa-user mr-2"></i>Teacher Details
+
                             </h5>
                             <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
@@ -282,8 +297,10 @@
                                         </h4>
                                     </div>
                                     <div class="col-md-4">
+
                                         <strong>Teacher Identification Number</strong>
                                         <p id="view_teacher_id_num" class="text-muted"></p>
+
                                     </div>
                                     <div class="col-md-8">
                                         <strong>Full Name:</strong>
@@ -336,11 +353,13 @@
                                     </div>
                                 </div>
 
+
                                 <!-- Assignment Information Section -->
                                 <div class="row mb-3">
                                     <div class="col-12 pt-2">
                                         <h4 class="border-bottom pb-2">
                                             <i class="fas fa-graduation-cap mr-2"></i>Assignment Information
+
                                         </h4>
                                     </div>
                                     <div class="col-md-4">
@@ -351,6 +370,8 @@
                                         <strong>Section:</strong>
                                         <p id="view_section" class="text-muted"></p>
                                     </div>
+
+
                                 </div>
                             </div>
                         </div>
@@ -363,6 +384,7 @@
                 </div>
             </div>
 
+
             <!-- Edit Teacher modal -->
             <div class="modal fade" id="editTeacherModal" tabindex="-1" role="dialog" aria-labelledby="editTeacherModalLabel">
                 <div class="modal-dialog modal-dialog-scrollable modal-xl" style="max-width: 1200px;" role="document">
@@ -370,15 +392,18 @@
                         <div class="modal-header bg-primary">
                             <h5 class="modal-title font-weight-bold" id="editTeacherModalLabel">
                                 <i class="fas fa-user-plus mr-2"></i>Teacher's Information Form
+
                             </h5>
                             <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         
+
                         <form id="editTeacherRecord" method="POST" enctype="multipart/form-data">
                             <!-- Hidden input that will take the student id selected -->
                              <input type="hidden" name="edit_teacher_id" id="edit_teacher_id">
+
                             <div class="modal-body">
                                 <div class="container-fluid">
                                     <!-- Personal Information Section -->
@@ -390,9 +415,11 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
+
                                                 <label for="edit_teacher_id_num">Learner Reference Number (LRN) <span class="text-danger">*</span></label>
                                                 <input type="text" class="form-control" id="edit_teacher_id_num" name="teacher_id_num" 
                                                     placeholder="Enter 12-digit LRN" required readonly>
+
                                             </div>
                                         </div>
                                         <div class="col-md-8">
@@ -483,11 +510,13 @@
                                         </div>
                                     </div>
 
+
                                     <!-- Assignment Information Section -->
                                     <div class="row mb-3">
                                         <div class="col-12">
                                             <h4 class="border-bottom pb-2">
                                                 <i class="fas fa-graduation-cap mr-2"></i>Assignment Information
+
                                             </h4>
                                         </div>
                                         <div class="col-md-4">
@@ -513,6 +542,7 @@
                                                 </select>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -529,6 +559,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- Attendance Modal -->
             <div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-labelledby="attendanceModalLabel" aria-hidden="true">
@@ -580,6 +611,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Footer component -->
             <?php include('../components/footer.php');?>
         </div>
@@ -594,6 +626,7 @@
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+
         <script src="../assets/js/teachers.js"></script>
     </body>
 </html>
