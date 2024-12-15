@@ -14,9 +14,9 @@
             for ($attempt = 0; $attempt < $maxAttempts; $attempt++) {
                 # generate random numbers
                 $randomNum = str_pad(mt_rand(0, 9999), 5, '0', STR_PAD_LEFT); # 5 digits, starting with zero
-                $username = $prefix . $randomNum; # concatinating the prefix to the randomly generated numbers
+                $username = $prefix . $randomNum; 
 
-                # prepare the query to check from the usrs table if the generated username already exists
+                # prepare the query to check from the usrs table and check if the generated username already exists
                 $query = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
                 $query->execute([$username]); 
                 
@@ -47,7 +47,7 @@
                 ) VALUES (
                     :lrn, 
                     :full_name,
-                    :contact_number,
+                    :contact_number
                 )
             ");
 
@@ -73,7 +73,7 @@
     }
 
     # function to create user account
-    function createUser($data) {
+    function createUser ($data) {
         global $pdo;
 
         try {
@@ -84,12 +84,11 @@
             foreach ($requiredFields as $field) {
                 if (!isset($data[$field]) || trim($data[$field]) === '') {
                     error_log("Missing or empty field: $field");
-
                     throw new Exception("Field '$field' is required and cannot be empty");
                 }
             }
 
-            # checking existing usrname
+            # checking existing username
             $check_query = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
             $check_query->execute([$data['username']]);
             if ($check_query->fetchColumn() > 0) {
@@ -101,47 +100,60 @@
                 throw new Exception("Invalid email format");
             }
 
-            # start transaction
             $pdo->beginTransaction();
 
             $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
 
-            $studentId = null; # setting a null value for the student id
-            # this id will be used to identify the student record created and pass it to the foreign key column in the users table
+            $studentId = null; 
+            $teacherId = null;
 
-            # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-            #      This part will handle the creation of student record automatically  during user account creation     # 
-            # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-            # if user is a student, create the student record first (can't create the account first if the student record is empty)
+            # Handle the creation of student & teacher record automatically during user account creation
             if ($data['user_role'] === 'student') {
-                # prepare the query the default student record values
-                # lrn is derived from the user account's username
-                # full name is from the full name of the user account
-                $studentQuery = $pdo->prepare("
-                    INSERT INTO students (
-                        lrn, 
-                        full_name,
-                        contact_number
+                # Create the student record
+                createStudentRecord($data['username'], $data['full_name'], $data['contact_number'] ?? null);
+                $studentId = $pdo->lastInsertId(); // Get the last inserted student ID
+            }
+
+            if ($data['user_role'] === 'teacher') {
+                # Use the username as the teacher_id_num
+                $teacherIdNum = $data['username']; 
+
+                # Prepare the query to create the teacher record
+                $teacherQuery = $pdo->prepare("
+                    INSERT INTO teachers (
+                        teacher_id_num, full_name, 
+                        birth_date, sex, religion, 
+                        street, barangay, municipality, province,
+                        contact_number, grade, section
                     ) VALUES (
-                        :lrn, 
-                        :full_name,
-                        :contact_number
+                        :teacher_id_num, :full_name, 
+                        :birth_date, :sex, :religion, 
+                        :street, :barangay, :municipality, :province, 
+                        :contact_number, :grade, :section
                     )
                 ");
 
-                # pass the values
-                $studentQuery->execute([
-                    ':lrn' => $data['username'],
+                # Pass the values, setting other fields to null
+                $teacherQuery->execute([
+                    ':teacher_id_num' => $teacherIdNum,
                     ':full_name' => $data['full_name'],
-                    ':contact_number' => $data['contact_number'] ?? null
+                    ':birth_date' => null, 
+                    ':sex' => null, 
+                    ':religion' => null, 
+                    ':street' => null,
+                    ':barangay' => null,
+                    ':municipality' => null,
+                    ':province' => null,
+                    ':contact_number' => $data['contact_number'] ?? null,
+                    ':grade' => null,
+                    ':section' => null
                 ]);
 
-                # Get the last inserted student ID
-                $studentId = $pdo->lastInsertId();
+                # Get the last inserted teacher ID
+                $teacherId = $pdo->lastInsertId();
             }
 
-            # proceed to querying the user account creation
+            # Proceed to querying the user account creation
             $query = $pdo->prepare("
                 INSERT INTO users (
                     username, 
@@ -150,7 +162,8 @@
                     full_name, 
                     email, 
                     contact_number,
-                    student_id 
+                    student_id,
+                    teacher_id
                 ) VALUES (
                     :username, 
                     :password, 
@@ -158,11 +171,12 @@
                     :full_name, 
                     :email, 
                     :contact_number,
-                    :student_id
+                    :student_id,
+                    :teacher_id
                 )
             ");
             
-            # pass the values and create the account referencing to the created student record
+            # Pass the values and create the account referencing to the created student or teacher record
             $result = $query->execute([
                 ':username' => $data['username'],
                 ':password' => $hashedPassword,
@@ -170,19 +184,20 @@
                 ':full_name' => $data['full_name'],
                 ':email' => $data['email'],
                 ':contact_number' => $data['contact_number'] ?? null,
-                ':student_id' => $studentId
+                ':student_id' => $studentId,
+                ':teacher_id' => $teacherId 
             ]);
 
             if (!$result) {
                 $errorInfo = $query->errorInfo();
-                throw new Exception("User creation failed: " . ($errorInfo[2] ?? 'Unknown error'));
+                throw new Exception("User  creation failed: " . ($errorInfo[2] ?? 'Unknown error'));
             }
 
             $pdo->commit();
 
             echo json_encode([
                 'status' => 'success',
-                'message' => 'User created successfully',
+                'message' => 'User  created successfully',
                 'username' => $data['username']
             ]);
             exit;
@@ -192,7 +207,7 @@
                 $pdo->rollBack();
             }
 
-            error_log("User creation error: " . $e->getMessage());
+            error_log("User  creation error: " . $e->getMessage());
             
             header('HTTP/1.1 400 Bad Request');
             echo json_encode([
@@ -203,14 +218,14 @@
         }
     }
 
-    # condition to handle incoming get request and post request respectively
+    # Condition to handle incoming GET request and POST request respectively
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         error_log("Raw POST data: " . print_r($_POST, true));
         
-        createUser($_POST); # if post request, call the function to create user
+        createUser ($_POST); # If POST request, call the function to create user
 
     } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        # if get request, return the random username generation to fill the username of the teacher
+        # If GET request, return the random username generation to fill the username of the teacher
         if (isset($_GET['action']) && $_GET['action'] === 'generate_teacher_id') {
             $teacherID = generateTeacherID();
 

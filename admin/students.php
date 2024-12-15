@@ -681,52 +681,51 @@
             <div class="modal fade" id="attendanceModal" tabindex="-1" role="dialog" aria-labelledby="attendanceModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
-                        <div class="modal-header bg-light">
-                            <h5 class="modal-title" id="attendanceModalLabel">
-                                <i class="fas fa-calendar-check mr-2 text-success"></i>
-                                Attendance for John Doe
-                            </h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row justify-content-center">
-                                <div class="col-md-10">
-                                    <div class="form-group">
-                                        <label class="d-block">Attendance Status</label>
-                                        <div class="custom-control custom-radio custom-control-inline">
-                                            <input type="radio" id="presentRadio" name="attendanceStatus" class="custom-control-input" value="present">
-                                            <label class="custom-control-label text-success" for="presentRadio">
-                                                <i class="fas fa-check-circle mr-1"></i>Present
-                                            </label>
+                        <form id="attendanceForm">
+                            <div class="modal-header bg-light">
+                                <h5 class="modal-title" id="attendanceModalLabel">
+                                    <i class="fas fa-calendar-check mr-2 text-success"></i>
+                                    Attendance for John Doe
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="student_id" name="student_id">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-10">
+                                        <div class="form-group">
+                                            <label class="d-block">Attendance Status</label>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="presentRadio" name="attendance" class="custom-control-input" value="present">
+                                                <label class="custom-control-label text-success" for="presentRadio">
+                                                    <i class="fas fa-check-circle mr-1"></i>Present
+                                                </label>
+                                            </div>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="absentRadio" name="attendance" class="custom-control-input" value="absent">
+                                                <label class="custom-control-label text-danger" for="absentRadio">
+                                                    <i class="fas fa-times-circle mr-1"></i>Absent
+                                                </label>
+                                            </div>
                                         </div>
-                                        <div class="custom-control custom-radio custom-control-inline">
-                                            <input type="radio" id="absentRadio" name="attendanceStatus" class="custom-control-input" value="absent">
-                                            <label class="custom-control-label text-danger" for="absentRadio">
-                                                <i class="fas fa-times-circle mr-1"></i>Absent
-                                            </label>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="attendanceDate">Date</label>
-                                        <input type="date" class="form-control" id="attendanceDate" value="<?php echo date('Y-m-d'); ?>">
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                <i class="fas fa-times mr-1"></i>Cancel
-                            </button>
-                            <button type="button" class="btn btn-primary" id="saveAttendance">
-                                <i class="fas fa-save mr-1"></i>Save Attendance
-                            </button>
-                        </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                    <i class="fas fa-times mr-1"></i>Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="saveAttendance">
+                                    <i class="fas fa-save mr-1"></i>Save Attendance
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
+
             <!-- Footer component -->
             <?php include('../components/footer.php');?>
         </div>

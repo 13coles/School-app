@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    loadStudentRecord();
     // function to combine names
     function combineNames() {
         let lastName = $('#last_name').val() ? $('#last_name').val().trim() : '';
@@ -169,14 +170,18 @@ $(document).ready(function() {
 
     // function to fetch and display students from the database
     function loadStudentRecord() {
+        const teacherSection = `<?php echo $_SESSION['teacher_section']; ?>`; 
+        
         $.ajax({
             url: 'fetch_records.php',
             type: 'GET',
+            data: { section: teacherSection }, 
             dataType: 'json',
             success: function(response) {
+                console.log('Response from fetch_records.php:', response);
                 if (response.status === 'success') {
                     $('#studentTable tbody').empty();
-    
+        
                     response.students.forEach(student => {
                         let row = `
                             <tr>
@@ -198,13 +203,13 @@ $(document).ready(function() {
                                             <a class="dropdown-item view-student" data-id="${student.id}" style="cursor:default;">
                                                 <i class="fas fa-eye text-info mr-2"></i> View Details
                                             </a>
-                                            <a class="dropdown-item view-grades" href="../admin/view_grades.php" style="cursor:default;">
+                                            <a class="dropdown-item view-grades" href="../teacher/student_grades.php" style="cursor:default;">
                                                 <i class="fas fa-list-alt text-info mr-2"></i> View Grades
                                             </a>
                                             <a class="dropdown-item attendance" style="cursor:default;">
                                                 <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
                                             </a>
-                                            <a class="dropdown-item edit-student" data-id="${student.id}" data-toggle="modal" data-target="#editStudentModal" style="cursor:default;">
+                                            <a class="dropdown-item edit-student" data-id="${student.id}" data-toggle="modal" data-target="#editStudentRecordModal" style="cursor:default;">
                                                 <i class="fas fa-edit text-success mr-2"></i>Edit
                                             </a>
                                             <div class="dropdown-divider"></div>
@@ -218,7 +223,7 @@ $(document).ready(function() {
                         `;
                         $('#studentTable tbody').append(row);
                     });
-                   
+                    
                     $('[data-toggle="tooltip"]').tooltip();
     
                 } else {
@@ -232,6 +237,7 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) {
                 console.error('AJAX Error:', error);
+                console.log('Response Text:', xhr.responseText); // Log the response text
                 Swal.fire({
                     icon: 'error',
                     title: 'Network Error',
@@ -240,8 +246,6 @@ $(document).ready(function() {
             }
         });
     }
-
-    loadStudentRecord();
 
     // view student details trigger logic
     $(document).on('click', '.view-student', function(e) {

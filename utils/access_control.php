@@ -16,7 +16,7 @@
             # redirect to their index pages if they access routes/pages that is not for their role
             switch ($_SESSION['user_role']) {
                 case 'admin':
-                    header("Location: ./admin/page/index.php");
+                    header("Location: ../admin/index.php");
                     break;
                 case 'teacher':
                     header("Location: ../teacher/index.php");

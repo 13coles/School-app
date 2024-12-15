@@ -47,45 +47,62 @@
             <div class="dropdown-header">
                 <div class="d-flex">
                     <div class="flex-shrink-0">
-                        <img src="../vendor/almasaeed2010/adminlte/dist/img/user4-128x128.jpg" class="img-circle elevation-2" alt="User Image" style="width: 40px; height: 40px;">
+                        <!-- Dynamically load user's profile image -->
+                        <?php 
+                          $image_path = ($_SESSION['user_role'] === 'student') 
+                              ? './assets/images/users/' 
+                              : '../assets/images/users/';
+                          $default_image = 'default-user.jpg'; // Fallback image if no user-specific image
+                          $user_image = $_SESSION['profile_image'] ?? $default_image;
+                        ?>
+                        <img src="<?= htmlspecialchars($image_path . $user_image) ?>" 
+                             class="img-circle elevation-2" 
+                             alt="User Image" 
+                             style="width: 40px; height: 40px;">
                     </div>
                     <div class="flex-grow-1 ml-3">
                         <!-- Current user's full name -->
-                        <h6 class="mb-0"><?php echo $_SESSION['full_name']; ?></h6> 
-                        <small class="text-muted"><?php echo ucfirst($_SESSION['user_role']); ?></small> <!-- Current user's role -->
+                        <h6 class="mb-0"><?= htmlspecialchars($_SESSION['full_name']); ?></h6>
+                        <small class="text-muted"><?= ucfirst($_SESSION['user_role']); ?></small>
                     </div>
                 </div>
             </div>
 
             <?php 
-                // Array that will hold the links displayed in the dropdown settings
-                $dropdown_menu = [
-                    'admin' => [], // admin will not have these links
-                    // teachers and students will have these links
-                    'teacher' => [
-                        'My profile' => '../teacher/teacher_profile.php',
-                        'Account settings' => '../teacher/teacher_settings.php'
-                    ],
-                    'student' => [
-                        'My profile' => './profile.php',
-                        'Account settings' => './settings.php'
-                    ]
-                ];
+            // Dropdown menu links
+            $dropdown_menu = [
+                'admin' => [],
+                'teacher' => [
+                    'My profile' => '../teacher/teacher_profile.php',
+                    'Account settings' => '../teacher/teacher_settings.php'
+                ],
+                'student' => [
+                    'My profile' => './profile.php',
+                    'Account settings' => './settings.php'
+                ]
+            ];
 
-                // Get current user's menu items based on the logged in user's role
-                $user_dropdown_menu = $dropdown_menu[$_SESSION['user_role']] ?? [];
+            // Current user's menu items
+            $user_dropdown_menu = $dropdown_menu[$_SESSION['user_role']] ?? [];
 
-                // Show dropdown links dynamically based on the logged in user's role
-                foreach ($user_dropdown_menu as $label => $link) {
-                    echo '<div class="dropdown-divider"></div>';
-                    echo '<a href="' . htmlspecialchars($link) . '" class="dropdown-item">';
-                    echo '<i class="fas fa-' . ($label === 'My profile' ? 'user' : 'cog') . ' mr-2"></i> ';
-                    echo ucfirst($label);
-                    echo '</a>';
-                }
+            // Render menu items
+            foreach ($user_dropdown_menu as $label => $link) {
+                echo '<div class="dropdown-divider"></div>';
+                echo '<a href="' . htmlspecialchars($link) . '" class="dropdown-item">';
+                echo '<i class="fas fa-' . ($label === 'My profile' ? 'user' : 'cog') . ' mr-2"></i> ';
+                echo ucfirst($label);
+                echo '</a>';
+            }
             ?>
+
             <div class="dropdown-divider"></div>
-            <a href="../authentication/logout.php" class="dropdown-item dropdown-footer text-danger">
+            <!-- Logout link dynamically based on role -->
+            <?php 
+            $logout_path = ($_SESSION['user_role'] === 'student') 
+                ? './authentication/logout.php' 
+                : '../authentication/logout.php';
+            ?>
+            <a href="<?= htmlspecialchars($logout_path) ?>" class="dropdown-item dropdown-footer text-danger">
                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
             </a>
         </div>
