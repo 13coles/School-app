@@ -1,9 +1,33 @@
-<?php 
+<?php
     session_start();
-
+    require_once '../utils/db_connection.php';
     require_once('../utils/access_control.php');
     
     checkAccess(['admin']);
+
+    if (isset($_GET['student_id'])) {
+        $student_id = $_GET['student_id'];
+        $stmt = $pdo->prepare("SELECT full_name, grade, section FROM students WHERE id = :student_id");
+        $stmt->execute(['student_id' => $student_id]);
+        $student = $stmt->fetch();
+    
+        if (!$student) {
+            die("Student not found.");
+        }
+        $stmt = $pdo->prepare("
+            SELECT s.subject_name, ss.subject_id
+            FROM student_subject ss
+            JOIN subjects s ON ss.subject_id = s.id
+            WHERE ss.student_id = :student_id
+        ");
+        $stmt->execute(['student_id' => $student_id]);
+        $subjects = $stmt->fetchAll();
+        $stmt = $pdo->prepare("
+            SELECT * FROM student_card WHERE student_id = :student_id
+        ");
+        $stmt->execute(['student_id' => $student_id]);
+        $student_card = $stmt->fetch();
+    
 ?>
 
 <!DOCTYPE html>
@@ -49,12 +73,12 @@
                     <div class="container-fluid">
                         <div class="row mb-2">
                             <div class="col-sm-6">
-                                <h1 class="m-0">Subjects & Grades</h1>
+                                <h1 class="m-0">Student Report Card</h1>
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
-                                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                    <li class="breadcrumb-item active">Subjects & Grades</li>
+                                    <li class="breadcrumb-item"><a href="students.php">Students Table</a></li>
+                                    <li class="breadcrumb-item active">Student Report Card</li>
                                 </ol>
                             </div>
                         </div>
@@ -64,63 +88,85 @@
                 <!-- Main content -->
                 <div class="content">
                     <div class="container-fluid">
+                        <?php include '../utils/sessions.php' ?>
                         <div class="card">
+                            <div class="card-header">
+                            <a href="print-grade.php?student_id=<?php echo $student_id; ?>" class="btn btn-secondary float-right">
+                                <i class="fas fa-print mr-1"></i> Print
+                            </a>
+
+                            </div>
                             <div class="card-body">
-                                <table id="gradesTable" class="table table-bordered table-hover">
+                           
+                            <table id="gradesTable" class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
-                                            <th rowspan="2" class="align-middle text-center">Student Name</th>
-                                            <th colspan="8" class="text-center">Subjects</th>
-                                            <th rowspan="2" class="align-middle text-center">Actions</th>
+                                            <th rowspan="2" class="align-middle bg-primary text-center">Subjects</th>
+                                            <th colspan="8" class="text-center bg-primary">
+                                                <?php echo $student['full_name'] . " - Grade: " . $student['grade'] . " Section: " . $student['section']; ?>
+                                            </th>
+
+                                            <th rowspan="2" class="align-middle bg-primary text-center">Final Grade</th>
                                         </tr>
                                         <tr>
-                                            <th class="text-center">Filipino</th>
-                                            <th class="text-center">English</th>
-                                            <th class="text-center">Math</th>
-                                            <th class="text-center">Science</th>
-                                            <th class="text-center">Aral Pan</th>
-                                            <th class="text-center">MAPEH</th>
-                                            <th class="text-center">ESP</th>
-                                            <th class="text-center">TLE</th>
+                                            <th colspan="2" class="text-center bg-warning">1st Quarter</th>
+                                            <th colspan="2" class="text-center bg-warning">2nd Quarter</th>
+                                            <th colspan="2" class="text-center bg-warning">3rd Quarter</th>
+                                            <th colspan="2" class="text-center bg-warning">4th Quarter</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <form action="">
+                                        <?php foreach ($subjects as $subject): ?>
                                             <tr>
-                                                <td>John Doe</td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="Filipino">
+                                                <td><?php echo $subject['subject_name']; ?></td>
+
+                                                <!-- 1st Quarter -->
+                                                <td colspan="2" class="p-1">
+                                                    <input type="text" class="form-control" value="<?php echo $student_card["1st_quarter"] ?? ''; ?>"  readonly>
                                                 </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="English">
+
+                                                <!-- 2nd Quarter -->
+                                                <td colspan="2" class="p-1">
+                                                    <input type="text" class="form-control" value="<?php echo $student_card["2nd_quarter"] ?? ''; ?>"  readonly>
                                                 </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="Math">
+
+                                                <!-- 3rd Quarter -->
+                                                <td colspan="2" class="p-1">
+                                                    <input type="text" class="form-control" value="<?php echo $student_card["3rd_quarter"] ?? ''; ?>"  readonly>
                                                 </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="Science">
+
+                                                <!-- 4th Quarter -->
+                                                <td colspan="2" class="p-1">
+                                                    <input type="text" class="form-control" value="<?php echo $student_card["4th_quarter"] ?? ''; ?>" readonly>
                                                 </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="Aral Pan">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="MAPEH">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="ESP">
-                                                </td>
-                                                <td class="p-1">
-                                                    <input type="text" class="form-control editable-grade" data-subject="TLE">
-                                                </td>
-                                                <td class="text-center">
-                                                    <button class="btn btn-sm btn-primary btn-edit-grades" data-toggle="tooltip" title="Edit Grades">
-                                                        <i class="fas fa-edit mr-1"></i>Edit Grade
-                                                    </button>
+                                                <?php 
+                                                    // Fetch grades for all quarters
+                                                    $first_quarter = $student_card["1st_quarter"] ?? 0;
+                                                    $second_quarter = $student_card["2nd_quarter"] ?? 0;
+                                                    $third_quarter = $student_card["3rd_quarter"] ?? 0;
+                                                    $fourth_quarter = $student_card["4th_quarter"] ?? 0;
+
+                                                    // Calculate average
+                                                    $final_grade = ($first_quarter + $second_quarter + $third_quarter + $fourth_quarter) / 4;
+
+                                                    // Round the final grade
+                                                    $final_grade_rounded = round($final_grade);
+                                                ?>
+
+                                                <!-- Final Grade -->
+                                                <td colspan="2" class="p-1">
+                                                    <input type="text" class="form-control" value="<?php echo $final_grade_rounded; ?>" readonly>
                                                 </td>
                                             </tr>
-                                        </form>
+                                        <?php endforeach; ?>
                                     </tbody>
                                 </table>
+
+                            <?php
+                        } else {
+                            echo "Student ID not provided.";
+                        }
+                        ?>
                             </div>
                         </div>
                     </div>
@@ -139,6 +185,6 @@
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-        <script src="../assets/js/view_grades.js"></script>
+  
     </body>
 </html>

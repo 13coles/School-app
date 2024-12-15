@@ -38,11 +38,12 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="#" class="nav-link modern-nav-link">
+            <a href="../admin/teachers.php" class="nav-link modern-nav-link">
               <i class="nav-icon fas fa-book-open"></i>
               <p>Teachers</p>
             </a>
           </li>
+          
 
           <li class="nav-header">ADDITIONAL</li>
 

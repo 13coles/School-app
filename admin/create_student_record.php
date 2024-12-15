@@ -11,14 +11,9 @@
             # start a database transaction to ensure data integrity
             $pdo->beginTransaction();
     
-            # log incoming student data for debugging
-            error_log("Received student data: " . print_r($data, true));
-    
-            # defining important student information fields to ensure the necessary fields are filled out
+            # defining important student information fields
             $requiredFields = ['lrn', 'full_name', 'birth_date', 'sex', 'barangay', 'municipality', 'province', 'grade', 'section', 'learning_modality'];
-            
-            # backend side validation to check each required fields by looping through the required fields array 
-            # and checks if the field exists in the incoming request specifically the required fields.
+    
             foreach ($requiredFields as $field) {
                 if (!isset($data[$field]) || trim($data[$field]) === '') {
                     error_log("Missing or empty field: $field");
@@ -26,41 +21,27 @@
                 }
             }
     
-            # checking existing student record in the database based on the LRN of the incoming request 
-            # and throw an exception error if the LRN already exists
+            # check for existing student and user
             $check_student_query = $pdo->prepare("SELECT COUNT(*) FROM students WHERE lrn = ?");
             $check_student_query->execute([$data['lrn']]);
             if ($check_student_query->fetchColumn() > 0) {
                 throw new Exception("Student with this LRN already exists");
             }
     
-            # reject user account creation request if there is an existing account with the same LRN
-            $check_user_query = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
-            $check_user_query->execute([$data['lrn']]);
-            if ($check_user_query->fetchColumn() > 0) {
-                throw new Exception("User account with this LRN already exists");
-            }
-    
-            # preparing the students table for inserting new student data
-            # used paramters to pass the incoming request data to the query to prevent SQL injection
+            # insert new student record
             $student_query = $pdo->prepare("
                 INSERT INTO students (
-                    lrn, full_name, 
-                    birth_date, sex, religion, 
-                    street, barangay, municipality, province, contact_number,
+                    lrn, full_name, birth_date, sex, religion, street, barangay, municipality, province, contact_number,
                     father_name, mother_name, guardian_name, relationship, guardian_contact,
                     grade, section, learning_modality, remarks
                 ) VALUES (
-                    :lrn, :full_name, 
-                    :birth_date, :sex, :religion, 
-                    :street, :barangay, :municipality, :province, :contact_number,
+                    :lrn, :full_name, :birth_date, :sex, :religion, :street, :barangay, :municipality, :province, :contact_number,
                     :father_name, :mother_name, :guardian_name, :relationship, :guardian_contact,
                     :grade, :section, :learning_modality, :remarks
                 )
             ");
-    
-            # insert the new student data into the students table passing the request data into the parameters of each table column
-            $student_result = $student_query->execute([
+            
+            $student_query->execute([
                 ':lrn' => $data['lrn'],
                 ':full_name' => $data['full_name'],
                 ':birth_date' => $data['birth_date'],
@@ -82,40 +63,21 @@
                 ':remarks' => $data['remarks'] ?? null
             ]);
     
-            # display error message if the creation failed
-            if (!$student_result) {
-                $errorInfo = $student_query->errorInfo();
-                throw new Exception("Student record creation failed: " . ($errorInfo[2] ?? 'Unknown error'));
-            }
-    
-            # get the last inserted id of the student data
             $studentId = $pdo->lastInsertId();
     
-            # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-            #       This part will handle the creation of user account of the student automatically       # 
-            # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-            # provide a default password for the account creation, in this case, it is student
-            # changeable default password ah
+            # Insert user account logic (as you already have it)
             $defaultPassword = 'student';
-            $hashedPassword = password_hash($defaultPassword, PASSWORD_BCRYPT); # hash the new password for security purposes
+            $hashedPassword = password_hash($defaultPassword, PASSWORD_BCRYPT);
     
-            # prepare the users table before inserting the new user account data
             $user_query = $pdo->prepare("
                 INSERT INTO users (
-                    username, password, user_role, 
-                    full_name, email, contact_number, 
-                    student_id
+                    username, password, user_role, full_name, email, contact_number, student_id
                 ) VALUES (
-                    :username, :password, 'student', 
-                    :full_name, :email, :contact_number,
-                    :student_id
+                    :username, :password, 'student', :full_name, :email, :contact_number, :student_id
                 )
             ");
     
-            # create user account, the username is the student's lrn filled in the students table while the password is default.
-            # contact number is also passed and capture the student id from the students table and pass it in the foreign key column student_id
-            $user_result = $user_query->execute([
+            $user_query->execute([
                 ':username' => $data['lrn'],
                 ':password' => $hashedPassword,
                 ':full_name' => $data['full_name'],
@@ -124,32 +86,41 @@
                 ':student_id' => $studentId
             ]);
     
-            # display error message if account creation failed
-            if (!$user_result) {
-                $errorInfo = $user_query->errorInfo();
-                throw new Exception("User account creation failed: " . ($errorInfo[2] ?? 'Unknown error'));
+            # Now associate the student with all subjects
+            // Fetch all subject ids
+            $subject_query = $pdo->query("SELECT id FROM subjects");
+            $subjects = $subject_query->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Insert student-subject associations into the pivot table
+            $insert_subjects_query = $pdo->prepare("
+                INSERT INTO student_subject (student_id, subject_id) VALUES (:student_id, :subject_id)
+            ");
+            
+            foreach ($subjects as $subject) {
+                $insert_subjects_query->execute([
+                    ':student_id' => $studentId,
+                    ':subject_id' => $subject['id']
+                ]);
             }
     
-            # commit database transaction
-            # commiting all the executed queries if all data are valid 
+            # commit transaction if everything is successful
             $pdo->commit();
     
             echo json_encode([
                 'status' => 'success',
-                'message' => 'Student record and user account created successfully',
+                'message' => 'Student record, user account, and subject associations created successfully',
                 'lrn' => $data['lrn'],
                 'default_password' => $defaultPassword
             ]);
             exit;
     
         } catch (Exception $e) {
-            # rollback the transaction if it failed during the creation process to ensure no failed data is being inserted in the database
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
     
             error_log("Student record creation error: " . $e->getMessage());
-            
+    
             header('HTTP/1.1 400 Bad Request');
             echo json_encode([
                 'status' => 'error',
@@ -158,6 +129,7 @@
             exit;
         }
     }
+    
 
     # Handle POST request
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
