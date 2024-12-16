@@ -61,7 +61,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Performance Report</title>
+    <title>Student Report</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -107,7 +107,7 @@
         <p>School Address: Brgy Sewahon 1, Sagay City</p>
     </div>
 
-    <h4>Student Performance Report</h4>
+    <h4>Student Ranking Report</h4>
     <table>
         <thead>
             <tr>

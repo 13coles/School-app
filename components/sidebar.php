@@ -57,12 +57,19 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
+              <a href="../admin/ranking.php" class="nav-link modern-nav-link">
+                <i class="fas fa-chart-line mr-2"></i>
+                <p>Ranking</p>
+              </a>
+
+              </li>
+              <!-- <li class="nav-item">
               <a href="../admin/performance.php" class="nav-link modern-nav-link">
                 <i class="fas fa-chart-line mr-2"></i>
                 <p>Performance</p>
               </a>
 
-              </li>
+              </li> -->
               <li class="nav-item">
                 <a href="../admin/attendance.php" class="nav-link modern-nav-link">
                   <i class="fas fa-calendar-check mr-2"></i>

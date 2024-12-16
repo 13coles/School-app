@@ -222,7 +222,7 @@ $(document).ready(function() {
                                                 <i class="fas fa-book-open text-info mr-2"></i> View Card
                                             </a>
                                             <a class="dropdown-item view-grades" href="../admin/add_grade.php?student_id=${student.id}" style="cursor:default;">
-                                                <i class="fas fa-pencil-alt text-info mr-2"></i> Add Grade
+                                                <i class="fas fa-pencil-alt text-info mr-2"></i> Add Score
                                             </a>
                                     <a class="dropdown-item view-attendance" style="cursor:default;">
                                         <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
