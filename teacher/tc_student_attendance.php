@@ -57,7 +57,6 @@
                                     <thead>
                                         <tr>
                                             <th>LRN</th>
-                                            <th>LRN</th>
                                             <th>Name</th>
                                             <th class="text-center">Gender</th>
                                             <th class="text-center">Grade</th>

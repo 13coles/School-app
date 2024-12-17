@@ -92,8 +92,8 @@ function createTeacherRecord($data) {
             ':municipality' => $data['municipality'],
             ':province' => $data['province'],
             ':contact_number' => $data['contact_number'],
-            ':grade' => $data['grade'] ?? null, // Optional field
-            ':section' => $data['section'] ?? null // Optional field
+            ':grade' => $data['grade'] ?? null, 
+            ':section' => $data['section'] ?? null 
         ]);
 
         // Check if teacher insertion was successful

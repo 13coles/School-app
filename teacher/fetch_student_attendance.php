@@ -5,15 +5,13 @@ require_once '../utils/db_connection.php';
 header('Content-Type: application/json');
 
 try {
-    if (!isset($_SESSION['teacher_section'])) {
-        throw new Exception("Teacher section not set in session.");
-    }
-
-    $teacher_section = $_SESSION['teacher_section']; 
-
-    # Handle GET request
+    // Handle GET request for fetching attendance
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        # Fetch attendance records for the teacher's section with an INNER JOIN
+        // Get filter parameters
+        $selectedDate = $_GET['date'] ?? date('Y-m-d');
+        $selectedTeacherId = $_GET['teacher_id'] ?? null;
+
+        // Base query with joins to get student and teacher information
         $query = "
             SELECT 
                 a.student_id, 
@@ -23,19 +21,31 @@ try {
                 s.grade, 
                 s.section, 
                 a.attendance, 
-                a.attendance_date 
+                a.attendance_date,
+                a.teacher_id,
+                t.full_name as teacher_name
             FROM 
-                students s
-            INNER JOIN 
-                attendance a ON s.id = a.student_id
+                attendance a
+            JOIN 
+                students s ON a.student_id = s.id
+            LEFT JOIN 
+                teachers t ON a.teacher_id = t.id
             WHERE 
-                s.section = :section
-            ORDER BY 
-                a.attendance_date DESC
+                a.attendance_date = :attendance_date
         ";
 
+        // Add teacher filter if provided
+        $params = [':attendance_date' => $selectedDate];
+        if ($selectedTeacherId) {
+            $query .= " AND a.teacher_id = :teacher_id";
+            $params[':teacher_id'] = $selectedTeacherId;
+        }
+
+        $query .= " ORDER BY a.attendance_date DESC";
+
+        // Prepare and execute the query
         $stmt = $pdo->prepare($query);
-        $stmt->execute([':section' => $teacher_section]);
+        $stmt->execute($params);
         $attendanceRecords = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         echo json_encode([
@@ -43,98 +53,86 @@ try {
             'attendance' => $attendanceRecords
         ]);
     } 
-
+    // Handle POST request for updating attendance
     elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Validate input
         $studentId = $_POST['student_id'] ?? null;
         $attendanceStatus = $_POST['attendance'] ?? null;
-        $attendanceDate = $_POST['attendance_date'] ?? date('Y-m-d'); 
+        $attendanceDate = $_POST['attendance_date'] ?? date('Y-m-d');
+        $teacherId = $_SESSION['teacher_id'] ?? null; 
 
-        # Ensure that student_id and attendance are provided
-        if ($studentId && $attendanceStatus) {
-            # Check if the student exists and belongs to the teacher's section
-            $checkStudentQuery = "
-                SELECT COUNT(*) 
-                FROM students 
-                WHERE id = :student_id AND section = :section
-            ";
-            $checkStmt = $pdo->prepare($checkStudentQuery);
-            $checkStmt->execute([
-                ':student_id' => $studentId,
-                ':section' => $teacher_section
-            ]);
-            $studentExists = $checkStmt->fetchColumn();
-
-            if ($studentExists) {
-                # Check if the attendance record already exists for the student on the given date
-                $checkAttendanceQuery = "
-                    SELECT COUNT(*) 
-                    FROM attendance 
-                    WHERE student_id = :student_id AND attendance_date = :attendance_date
-                ";
-                $checkAttendanceStmt = $pdo->prepare($checkAttendanceQuery);
-                $checkAttendanceStmt->execute([
-                    ':student_id' => $studentId,
-                    ':attendance_date' => $attendanceDate
-                ]);
-                $attendanceExists = $checkAttendanceStmt->fetchColumn();
-
-                if ($attendanceExists) {
-                    # Update existing attendance record
-                    $updateQuery = "
-                        UPDATE attendance 
-                        SET attendance = :attendance 
-                        WHERE student_id = :student_id AND attendance_date = :attendance_date
-                    ";
-                    $stmt = $pdo->prepare($updateQuery);
-                    $result = $stmt->execute([
-                        ':student_id' => $studentId,
-                        ':attendance_date' => $attendanceDate,
-                        ':attendance' => $attendanceStatus
-                    ]);
-
-                    echo json_encode([
-                        'status' => 'success',
-                        'message' => 'Attendance updated successfully.'
-                    ]);
-                } else {
-                    # Insert new attendance record
-                    $insertQuery = "
-                        INSERT INTO attendance (student_id, attendance_date, attendance)
-                        VALUES (:student_id, :attendance_date, :attendance)
-                    ";
-                    $stmt = $pdo->prepare($insertQuery);
-                    $result = $stmt->execute([
-                        ':student_id' => $studentId,
-                        ':attendance_date' => $attendanceDate,
-                        ':attendance' => $attendanceStatus
-                    ]);
-
-                    echo json_encode([
-                        'status' => 'success',
-                        'message' => 'Attendance recorded successfully.'
-                    ]);
-                }
-            } else {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Student does not belong to your section.'
-                ]);
-            }
-        } else {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Invalid input data.'
-            ]);
+        // Validate required fields
+        if (!$studentId || !$attendanceStatus || !$teacherId) {
+            throw new Exception("Missing required parameters");
         }
-    } 
-    # Handle invalid request method
-    else {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Invalid request method.'
+
+        // Check if the attendance record exists
+        $checkQuery = "
+            SELECT COUNT(*) 
+            FROM attendance 
+            WHERE student_id = :student_id AND attendance_date = :attendance_date
+        ";
+        $checkStmt = $pdo->prepare($checkQuery);
+        $checkStmt->execute([
+            ':student_id' => $studentId,
+            ':attendance_date' => $attendanceDate
         ]);
+        $recordExists = $checkStmt->fetchColumn();
+
+        // Prepare the query based on whether the record exists
+        if ($recordExists) {
+            // Update existing record
+            $query = "
+                UPDATE attendance 
+                SET 
+                    attendance = :attendance,
+                    teacher_id = :teacher_id
+                WHERE 
+                    student_id = :student_id AND 
+                    attendance_date = :attendance_date
+            ";
+        } else {
+            // Insert new record
+            $query = "
+                INSERT INTO attendance (
+                    student_id, 
+                    attendance_date, 
+                    attendance, 
+                    teacher_id
+                ) VALUES (
+                    :student_id, 
+                    :attendance_date, 
+                    :attendance, 
+                    :teacher_id
+                )
+            ";
+        }
+
+        // Prepare and execute the query
+        $stmt = $pdo->prepare($query);
+        $result = $stmt->execute([
+            ':student_id' => $studentId,
+            ':attendance_date' => $attendanceDate,
+            ':attendance' => $attendanceStatus,
+            ':teacher_id' => $teacherId
+        ]);
+
+        // Check execution result
+        if ($result) {
+            echo json_encode([
+                'status' => 'success',
+                'message' => $recordExists 
+                    ? 'Attendance updated successfully.' 
+                    : 'Attendance recorded successfully.'
+            ]);
+        } else {
+            throw new Exception("Failed to save attendance record");
+        }
     }
-} catch (PDOException $e) {
+} catch (Exception $e) {
+    // Error handling
+    error_log("Attendance Error: " . $e->getMessage());
+    
     echo json_encode([
         'status' => 'error',
         'message' => $e->getMessage()
