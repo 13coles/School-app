@@ -75,7 +75,7 @@
 
     function updateTeacherRecord($data) {
         global $pdo;
-
+    
         try {
             $requiredFields = ['teacher_id', 'teacher_id_num', 'full_name', 'birth_date', 'sex', 'barangay', 'municipality', 'province', 'contact_number'];
             
@@ -84,16 +84,11 @@
                     throw new Exception("Field '$field' is required and cannot be empty");
                 }
             }
-
-            $check_query = $pdo->prepare("SELECT COUNT(*) FROM teachers WHERE id = ?");
-            $check_query->execute([$data['teacher_id']]);
-            if ($check_query->fetchColumn() == 0) {
-                throw new Exception("Teacher record not found");
-            }
-
+    
             $pdo->beginTransaction();
-
-            $query = $pdo->prepare("
+    
+            // Update teacher record
+            $teacher_query = $pdo->prepare("
                 UPDATE teachers SET 
                     teacher_id_num = :teacher_id_num, 
                     full_name = :full_name, 
@@ -109,8 +104,8 @@
                     section = :section
                 WHERE id = :teacher_id
             ");
-
-            $result = $query->execute([
+    
+            $teacher_result = $teacher_query->execute([
                 ':teacher_id' => $data['teacher_id'],
                 ':teacher_id_num' => $data['teacher_id_num'],
                 ':full_name' => $data['full_name'],
@@ -125,27 +120,64 @@
                 ':grade' => $data['grade'] ?? null,
                 ':section' => $data['section'] ?? null
             ]);
-
-            if (!$result) {
-                $pdo->rollBack();
-                $errorInfo = $query->errorInfo();
-                throw new Exception("Database update failed: " . ($errorInfo[2] ?? 'Unknown error'));
+    
+            if (!$teacher_result) {
+                throw new Exception("Failed to update teacher record");
             }
-
+    
+            // Handle student assignments
+            // First, remove existing assignments
+            $remove_assignments_query = $pdo->prepare("
+                DELETE FROM teacher_student_assignments 
+                WHERE teacher_id = :teacher_id
+            ");
+            $remove_assignments_query->execute([':teacher_id' => $data['teacher_id']]);
+    
+            // Add new student assignments if provided
+            if (isset($data['assigned_students']) && is_array($data['assigned_students'])) {
+                $assignment_query = $pdo->prepare("
+                    INSERT INTO teacher_student_assignments 
+                    (teacher_id, student_id) 
+                    VALUES (:teacher_id, :student_id)
+                ");
+    
+                foreach ($data['assigned_students'] as $student_id) {
+                    $assignment_query->execute([
+                        ':teacher_id' => $data['teacher_id'],
+                        ':student_id' => $student_id
+                    ]);
+                }
+            }
+    
+            // Update users table if needed
+            $user_query = $pdo->prepare("
+                UPDATE users 
+                SET 
+                    full_name = :full_name,
+                    contact_number = :contact_number
+                WHERE teacher_id = :teacher_id
+            ");
+            $user_query->execute([
+                ':full_name' => $data['full_name'],
+                ':contact_number' => $data['contact_number'] ?? null,
+                ':teacher_id' => $data['teacher_id']
+            ]);
+    
             $pdo->commit();
-
+    
             return [
                 'status' => 'success',
-                'message' => 'Teacher record updated successfully',
-                'teacher_id' => $data['teacher_id']
+                'message' => 'Teacher record and assignments updated successfully',
+                'teacher_id' => $data['teacher_id'],
+                'assigned_students_count' => count($data['assigned_students'] ?? [])
             ];
-
+    
         } catch (Exception $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-
-            error_log("Teacher record update error: " . $e->getMessage());
+    
+            error_log("Teacher update error: " . $e->getMessage());
             throw $e;
         }
     }
@@ -154,28 +186,40 @@
         // Sanitizing GET and POST requests
         $_GET = sanitizeInput($_GET);
         $_POST = sanitizeInput($_POST);
-
+    
         // If GET request, return the teacher details to edit
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
                 throw new Exception("Invalid or missing teacher ID");
             }
-
-            // Call the fetch function
+    
+            // Fetch teacher details with assigned students
             $teacher = fetchTeacherDetails(intval($_GET['id']));
+            
+            // Fetch assigned students
+            $assigned_students_query = $pdo->prepare("
+                SELECT s.id, s.full_name, s.lrn 
+                FROM students s
+                JOIN teacher_student_assignments tsa ON s.id = tsa.student_id
+                WHERE tsa.teacher_id = :teacher_id
+            ");
+            $assigned_students_query->execute([':teacher_id' => $teacher['id']]);
+            $assigned_students = $assigned_students_query->fetchAll(PDO::FETCH_ASSOC);
+    
             echo json_encode([
                 'status' => 'success',
                 'teacher' => $teacher,
+                'assigned_students' => $assigned_students,
                 'debug_id' => intval($_GET['id'])
             ]);
-
+    
         // If POST request, update the teacher record
         } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Ensure teacher_id is present
             if (!isset($_POST['teacher_id'])) {
                 throw new Exception('Teacher ID is required for update');
             }
-
+    
             // Combine names if separate fields are provided
             if (isset($_POST['last_name']) && isset($_POST['first_name'])) {
                 $fullName = $_POST['last_name'];
@@ -183,7 +227,7 @@
                 $fullName .= $_POST['middle_name'] ? ' ' . $_POST['middle_name'] : '';
                 $_POST['full_name'] = $fullName;
             }
-
+    
             try {
                 // Call the update function 
                 $result = updateTeacherRecord($_POST);
@@ -195,11 +239,11 @@
                     'message' => $e->getMessage()
                 ]);
             }
-
+    
         } else {
             throw new Exception("Unsupported HTTP method");
         }
-
+    
     } catch (Exception $e) {
         error_log("Error in update_teachers.php: " . $e->getMessage());
         
