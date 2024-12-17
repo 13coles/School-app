@@ -66,18 +66,11 @@
                 <div class="content">
                     <div class="container-fluid">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="d-flex justify-content-end align-items-center">
-                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addStudentRecordModal">
-                                        <i class="fas fa-plus-circle mr-1"></i> Add record
-                                    </button>
-                                </div>
-                            </div>
-                            
                             <div class="card-body">
                                 <table id="studentTable" class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
+                                            <th>ID</th>
                                             <th>LRN</th>
                                             <th>Name</th>
                                             <th class="text-center">Gender</th>

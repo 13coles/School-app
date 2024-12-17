@@ -4,7 +4,7 @@
       <div class="user-panel-container">
           <div class="user-panel-wrapper">
               <div class="user-avatar-container">
-              <img src="./vendor/almasaeed2010/adminlte/dist/img/user1-128x128.jpg" class="user-avatar" alt="User Image">
+              <img src="../assets/img/images.jfif" class="user-avatar" alt="User Image">
               </div>
               <div class="user-info">
                 <h4 class="user-name"><?php echo $_SESSION['full_name']; ?></h4>
@@ -41,6 +41,24 @@
             <ul class="nav nav-treeview">
               <li class="nav-item">
                 <a href="my_grade.php" class="nav-link modern-nav-link">
+                  <i class="fas fa-trophy mr-2"></i>
+                  <p>Performance</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="my_attendance.php" class="nav-link modern-nav-link">
+                  <i class="fas fa-calendar-check mr-2"></i>
+                  <p>Attendance</p>
+                </a>
+              </li>
+            </ul>
+            <a href="report_card.php" class="nav-link modern-nav-link">
+              <i class="nav-icon fas fa-file-alt"></i> 
+              <p>Report Card</p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="my_performance.php" class="nav-link modern-nav-link">
                   <i class="fas fa-trophy mr-2"></i>
                   <p>Performance</p>
                 </a>

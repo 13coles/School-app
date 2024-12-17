@@ -136,6 +136,21 @@ function createTeacherRecord($data) {
             throw new Exception("User  creation failed: " . ($errorInfo[2] ?? 'Unknown error'));
         }
 
+        if (isset($data['assigned_students']) && is_array($data['assigned_students'])) {
+            $assignment_query = $pdo->prepare("
+                INSERT INTO teacher_student_assignments 
+                (teacher_id, student_id) 
+                VALUES (:teacher_id, :student_id)
+            ");
+
+            foreach ($data['assigned_students'] as $student_id) {
+                $assignment_query->execute([
+                    ':teacher_id' => $teacherId,
+                    ':student_id' => $student_id
+                ]);
+            }
+        }
+
         // Commit the transaction
         $pdo->commit();
 

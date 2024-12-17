@@ -53,17 +53,6 @@
                 <div class="content">
                     <div class="container-fluid">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="d-flex justify-content-end">
-                                    <div class="input-group input-group-sm" style="width: 250px;">
-                                        <input type="search" class="form-control" placeholder="Search your specific record" id="studentSearch">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
                             <div class="card-body">
                                 <table id="personalRecordTable" class="table table-bordered table-striped">
                                     <thead>

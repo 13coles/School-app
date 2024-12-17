@@ -218,21 +218,12 @@ $(document).ready(function() {
                                     <a class="dropdown-item view-student" data-id="${student.id}" style="cursor:default;">
                                         <i class="fas fa-eye text-info mr-2"></i> View Details
                                     </a>
-                                     <a class="dropdown-item view-grades" href="../admin/view_grades.php?student_id=${student.id}" style="cursor:default;">
-                                                <i class="fas fa-book-open text-info mr-2"></i> View Card
-                                            </a>
-                                            <a class="dropdown-item view-grades" href="../admin/add_grade.php?student_id=${student.id}" style="cursor:default;">
-                                                <i class="fas fa-pencil-alt text-info mr-2"></i> Add Grade
-                                            </a>
-                                    <a class="dropdown-item view-attendance" style="cursor:default;">
-                                        <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
-                                    </a>
                                     <a class="dropdown-item edit-student" data-id="${student.id}" data-toggle="modal" data-target="#editStudentModal" style="cursor:default;">
                                         <i class="fas fa-edit text-success mr-2"></i>Edit
                                     </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item delete-student text-danger" data-id="${student.id}" style="cursor:default;">
-                                        <i class="fas fa-archive text-danger mr-2"></i> Archive
+                                        <i class="fas fa-archive text-danger mr-2"></i> Delete
                                     </a>
                                 </div>
                             </div>

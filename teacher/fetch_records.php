@@ -6,57 +6,77 @@ require_once '../utils/db_connection.php';
 header('Content-Type: application/json');
 
 try {
-    // Check if the session variable exists
-    if (!isset($_SESSION['teacher_section'])) {
-        throw new Exception("Teacher section not set in session.");
+    // Check if the user is logged in and has a teacher role
+    if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'teacher') {
+        throw new Exception("Unauthorized access. Teacher login required.");
     }
 
-    $teacher_section = $_SESSION['teacher_section']; 
+    // Ensure teacher_id is set
+    if (!isset($_SESSION['id'])) {
+        throw new Exception("Teacher ID not found in session.");
+    }
+
+    $teacher_id = $_SESSION['teacher_id'];
 
     $query = $pdo->prepare("
         SELECT 
-            id, 
-            lrn, 
-            full_name, 
-            birth_date, 
-            sex, 
-            grade, 
-            section, 
-            learning_modality,
-            barangay, 
-            municipality, 
-            province,
-            contact_number
-        FROM students 
-        WHERE section = :section
-        ORDER BY id DESC
+            s.id, 
+            s.lrn, 
+            s.full_name, 
+            s.birth_date, 
+            s.sex, 
+            s.grade, 
+            s.section, 
+            s.learning_modality,
+            s.barangay, 
+            s.municipality, 
+            s.province,
+            s.contact_number,
+            tsa.id as assignment_id
+        FROM 
+            teacher_student_assignments tsa
+        JOIN 
+            students s ON tsa.student_id = s.id
+        WHERE 
+            tsa.teacher_id = :teacher_id
+        ORDER BY 
+            s.grade, 
+            s.section, 
+            s.full_name 
     ");
     
-    $query->execute(['section' => $teacher_section]);
+    $query->execute(['teacher_id' => $teacher_id]);
     
     $students = $query->fetchAll(PDO::FETCH_ASSOC);
 
-    $processedStudents = array_map(function($student) {
-        $student['birth_date'] = date('Y-m-d', strtotime($student['birth_date']));
-        return $student;
-    }, $students);
-
     $response = [
         'status' => 'success',
-        'students' => $processedStudents,
-        'total_count' => count($processedStudents)
+        'students' => $students,
+        'total_count' => count($students),
+        'teacher_id' => $teacher_id
     ];
 
     echo json_encode($response);
 
-} catch (Exception $e) {
+} catch (PDOException $e) {
+    // Database-specific error handling
     $errorResponse = [
         'status' => 'error',
-        'message' => $e->getMessage(),
-        'trace' => $e->getTraceAsString() 
+        'message' => 'Database error: ' . $e->getMessage(),
+        'code' => $e->getCode()
     ];
     
     http_response_code(500);
+    echo json_encode($errorResponse);
+
+} catch (Exception $e) {
+    // General error handling
+    $errorResponse = [
+        'status' => 'error',
+        'message' => $e->getMessage()
+    ];
+    
+    http_response_code(403);
     echo json_encode($errorResponse);
 }
 exit;

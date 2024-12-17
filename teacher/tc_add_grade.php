@@ -99,7 +99,7 @@
                             <div class="card-body">
                              
 
-                                <form method="POST" action="save_grades.php">
+                                <form method="POST" action="tc_save_grades.php">
                                     <input type="hidden" name="student_id" value="<?php echo htmlspecialchars($student_id); ?>">
                                     <div class="form-group">
                                         <label for="quarter">Select Quarter:</label>

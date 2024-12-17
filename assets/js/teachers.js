@@ -175,6 +175,98 @@ $(document).ready(function() {
         });
     });
 
+    function fetchStudents() {
+        const grade = $('#grade').val();
+        const section = $('#section').val();
+    
+        if (grade && section) {
+            $.ajax({
+                url: 'assigned_students.php',
+                type: 'GET',
+                data: { 
+                    grade: grade, 
+                    section: section 
+                },
+                dataType: 'json',
+                success: function(response) {
+                    console.log('Full response:', response); // Log full response
+    
+                    if (response && response.status === 'success') {
+                        const $studentsSelect = $('#assigned_students');
+                        $studentsSelect.empty();
+    
+                        if (response.students && response.students.length > 0) {
+                            response.students.forEach(student => {
+                                $studentsSelect.append(
+                                    `<option value="${student.id}">
+                                        ${student.full_name} (LRN: ${student.lrn})
+                                    </option>`
+                                );
+                            });
+    
+                            // Check if select2 method exists before calling
+                            if ($.fn.select2) {
+                                // Enable multiple selection with search
+                                $studentsSelect.select2({
+                                    placeholder: "Select students",
+                                    allowClear: true,
+                                    width: '100%'
+                                });
+                            } else {
+                                console.warn('Select2 is not loaded');
+                            }
+                        } else {
+                            $studentsSelect.append('<option value="">No students found</option>');
+                            
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Students',
+                                text: 'No students found for this grade and section'
+                            });
+                        }
+                    } else {
+                        console.error('Invalid response:', response);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Fetch Error',
+                            text: response.message || 'Could not fetch students',
+                            footer: response.error_details ? `Error Details: ${response.error_details}` : ''
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Full AJAX Error:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText
+                    });
+    
+                    let errorMessage = 'An unexpected error occurred';
+                    let errorDetails = '';
+                    
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        errorMessage = errorResponse.message || errorMessage;
+                        errorDetails = errorResponse.error_details || '';
+                    } catch (e) {
+                        errorMessage = xhr.statusText || errorMessage;
+                    }
+    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Fetch Error',
+                        text: errorMessage,
+                        footer: errorDetails ? `Error Details: ${errorDetails}` : '',
+                        showConfirmButton: true
+                    });
+                }
+            });
+        }
+    }
+
+    // Trigger student fetching when grade and section change
+    $('#grade, #section').on('change', fetchStudents);
+
     // Load Teachers Function
     function loadTeachers() {
         console.log('Loading teachers...');

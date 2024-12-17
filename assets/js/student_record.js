@@ -1,3 +1,5 @@
+let studentTable; 
+
 $(document).ready(function() {
     loadStudentRecord();
     // function to combine names
@@ -168,84 +170,188 @@ $(document).ready(function() {
         }
     });
 
-    // function to fetch and display students from the database
-    function loadStudentRecord() {
-        const teacherSection = `<?php echo $_SESSION['teacher_section']; ?>`; 
+    // Student data table initialization
+    studentTable = $('#studentTable').DataTable({
+        responsive: true,
+        lengthChange: true,
+        autoWidth: false,
+        pageLength: 10,
+        columns: [
+            { data: 'id', visible : false}, 
+            { data: 'lrn' },
+            { data: 'full_name' },
+            { data: 'sex' },
+            { data: 'grade' },
+            { data: 'section' },
+            { data: 'barangay' },
+            { data: 'municipality' },
+            { data: 'province' },
+            { data: 'contact_number' },
+            { 
+                data: null,
+                render: function(data, type, row) {
+                    return `
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item view-student" data-id="${row.id}">
+                                <i class="fas fa-eye text-info mr-2"></i> View
+                            </a>
+                            <a class="dropdown-item view-grades" href="../teacher/tc_view_grade.php?student_id=${row.id}" style="cursor:default;">
+                                <i class="fas fa-book-open text-info mr-2"></i> View Card
+                            </a>
+                            <a class="dropdown-item view-grades" href="../teacher/tc_add_grade.php?student_id=${row.id}" style="cursor:default;">
+                                <i class="fas fa-pencil-alt text-info mr-2"></i> Add Grade
+                            </a>
+                            <a class="dropdown-item view-attendance" style="cursor:default;">
+                                <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
+                            </a>
+                            <a class="dropdown-item edit-student" data-id="${row.id}">
+                                <i class="fas fa-edit text-success mr-2"></i> Edit
+                            </a>
+                        </div>
+                    </div>
+                    `;
+                }
+            }
+        ]
+    });
+
+    $(document).on('click', '.view-attendance', function() {
+        const row = $(this).closest('tr'); 
+        // Use the first column (id) which is now hidden in the DataTable configuration
+        const rowData = studentTable.row(row).data();
+        const studentId = rowData.id; // Directly access the ID from row data
+        const studentName = rowData.full_name; 
         
-        $.ajax({
-            url: 'fetch_records.php',
-            type: 'GET',
-            data: { section: teacherSection }, 
-            dataType: 'json',
-            success: function(response) {
-                console.log('Response from fetch_records.php:', response);
-                if (response.status === 'success') {
-                    $('#studentTable tbody').empty();
-        
-                    response.students.forEach(student => {
-                        let row = `
-                            <tr>
-                                <td>${student.lrn}</td>
-                                <td>${student.full_name}</td>
-                                <td class="text-center">${student.sex}</td>
-                                <td class="text-center">${student.grade}</td>
-                                <td class="text-center">${student.section}</td>
-                                <td class="text-center">${student.barangay}</td>
-                                <td>${student.municipality}</td>
-                                <td>${student.province}</td>
-                                <td>${student.contact_number}</td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown${student.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <i class="fas fa-ellipsis-v"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="actionDropdown${student.id}">
-                                            <a class="dropdown-item view-student" data-id="${student.id}" style="cursor:default;">
-                                                <i class="fas fa-eye text-info mr-2"></i> View Details
-                                            </a>
-                                            <a class="dropdown-item view-grades" href="../teacher/student_grades.php" style="cursor:default;">
-                                                <i class="fas fa-list-alt text-info mr-2"></i> View Grades
-                                            </a>
-                                            <a class="dropdown-item attendance" style="cursor:default;">
-                                                <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
-                                            </a>
-                                            <a class="dropdown-item edit-student" data-id="${student.id}" data-toggle="modal" data-target="#editStudentRecordModal" style="cursor:default;">
-                                                <i class="fas fa-edit text-success mr-2"></i>Edit
-                                            </a>
-                                            <div class="dropdown-divider"></div>
-                                            <a class="dropdown-item delete-student text-danger" data-id="${student.id}" style="cursor:default;">
-                                                <i class="fas fa-archive text-danger mr-2"></i> Archive
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                        $('#studentTable tbody').append(row);
-                    });
-                    
-                    $('[data-toggle="tooltip"]').tooltip();
+        console.log('Attendance Modal Debug:', {
+            studentId: studentId,
+            studentName: studentName
+        });
     
+        // Set the student ID in the modal's data attribute for later retrieval
+        $('#attendanceModal').data('student-id', studentId);
+    
+        // Update the modal label with student name
+        $('#attendanceModalLabel').html(`
+            <i class="fas fa-calendar-check mr-2 text-success"></i>
+            Attendance for ${studentName}
+        `);
+    
+        $('#attendanceModal').modal('show'); 
+    }); 
+    
+    // Modify the attendance saving function to use the modal's data attribute
+    $('#saveAttendance').on('click', function() {
+        // Retrieve the student ID from the modal's data attribute
+        const studentId = $('#attendanceModal').data('student-id');
+        const studentName = $('#attendanceModalLabel').text().replace('Attendance for ', '').trim();
+        const attendanceStatus = $('input[name="attendanceStatus"]:checked').val();
+    
+        // Validate attendance selection
+        if (!attendanceStatus) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Attendance Required',
+                text: 'Please select an attendance status for ' + studentName
+            });
+            return;
+        }
+    
+        // Debugging logs
+        console.log('Student ID:', studentId);
+        console.log('Student Name:', studentName);
+        console.log('Attendance Status:', attendanceStatus);
+    
+        // AJAX request to save attendance
+        $.ajax({
+            url: 'add_attendance.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                student_id: studentId,
+                attendance: attendanceStatus
+            },
+            success: function(response) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Attendance Recorded',
+                    text: `Attendance for ${studentName} marked as ${attendanceStatus}`,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+    
+                // Close the attendance modal
+                $('#attendanceModal').modal('hide');
+            },
+            error: function(xhr, status, error) {
+                console.error('Attendance Error:', xhr);
+                console.error('Response Text:', xhr.responseText);
+                
+                let errorMessage = 'Failed to record attendance';
+                let errorDetails = 'Unknown error';
+    
+                if (xhr.responseJSON) {
+                    errorMessage = xhr.responseJSON.message || errorMessage;
+                    errorDetails = xhr.responseJSON.type || 'Error';
+                }
+    
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Attendance Error',
+                    html: `
+                        <p><strong>Error:</strong> ${errorMessage}</p>
+                        <p><strong>Details:</strong> ${errorDetails}</p>
+                    `,
+                    footer: '<small>Please contact support if the issue persists</small>'
+                });
+            }
+        });
+    });
+
+    // Function to load student records
+    function loadStudentRecord() {
+        $.ajax({
+            url: 'fetch_records.php', 
+            type: 'GET',
+            dataType: 'json',
+            success: function (response) {
+                console.log('Fetch Students Response:', response);
+    
+                if (response.status === 'success' && Array.isArray(response.students)) {
+                    // Clear existing data and add new data
+                    studentTable.clear();
+                    studentTable.rows.add(response.students);
+                    studentTable.draw();
+                    
+                    // Update total count
+                    $('#total-students').text(response.total_count);
+                    
+                    console.log(`Loaded ${response.students.length} student records`);
                 } else {
-                    console.error('Failed to load students:', response.message);
+                    studentTable.clear().draw();
+                    
                     Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.message || 'Failed to load students'
+                        icon: 'info',
+                        title: 'No Students Found',
+                        text: response.message || 'No students are currently assigned to you.',
                     });
                 }
             },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                console.log('Response Text:', xhr.responseText); // Log the response text
+            error: function (xhr, status, error) {
+                console.error('AJAX Error:', status, error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Network Error',
-                    text: 'Could not fetch students. Please try again.'
+                    text: 'Could not fetch student records.',
                 });
             }
         });
     }
+
+    loadStudentRecord();
 
     // view student details trigger logic
     $(document).on('click', '.view-student', function(e) {
@@ -491,83 +597,6 @@ $(document).ready(function() {
                     icon: 'error',
                     title: 'Network Error',
                     text: xhr.responseJSON?.message || 'Could not update student record. Please try again.'
-                });
-            }
-        });
-    });
-
-    // attendance modal trigger
-    $(document).on('click', '.attendance', function() {
-        // Get the student ID directly from the data attribute
-        const studentId = $(this).closest('tr').find('.edit-student').data('id');
-        const studentName = $(this).closest('tr').find('td:nth-child(2)').text();
-        
-        // Store the student ID in the modal for later use
-        $('#attendanceModal').data('student-id', studentId);
-        
-        // set student name in modal based from the selected table row
-        $('#attendanceModalLabel').html(`
-            <i class="fas fa-calendar-check mr-2 text-success"></i>
-            Attendance for ${studentName}
-        `);
-
-        // show attendance modal
-        $('#attendanceModal').modal('show');
-    });
-
-    // In your student_record.js or wherever the attendance logic is
-    $('#saveAttendance').on('click', function() {
-        // Get the student ID from the modal's data attribute
-        const studentId = $('#attendanceModal').data('student-id');
-        const studentName = $('#attendanceModalLabel').text().replace('Attendance for ', '').trim();
-        const attendanceStatus = $('input[name="attendanceStatus"]:checked').val();
-
-        // Validate attendance selection
-        if (!attendanceStatus) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Attendance Required',
-                text: 'Please select an attendance status for ' + studentName
-            });
-            return;
-        }
-
-        // Debugging logs
-        console.log('Student ID:', studentId);
-        console.log('Student Name:', studentName);
-        console.log('Attendance Status:', attendanceStatus);
-
-        // AJAX request to save attendance
-        $.ajax({
-            url: 'add_attendance.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                student_id: studentId,
-                attendance: attendanceStatus
-            },
-            success: function(response) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Attendance Recorded',
-                    text: `Attendance for ${studentName} marked as ${attendanceStatus}`
-                });
-
-                // Close the attendance modal
-                $('#attendanceModal').modal('hide');
-            },
-            error: function(xhr, status, error) {
-                console.error('Attendance Error:', xhr);
-                console.error('Response Text:', xhr.responseText);
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Attendance Error',
-                    text: xhr.responseJSON?.message || 'Failed to record attendance',
-                    html: `
-                        <p>${xhr.responseJSON?.message || 'Unknown error'}</p>
-                        <small>Check browser console for details</small>
-                    `
                 });
             }
         });

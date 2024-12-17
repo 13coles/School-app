@@ -4,7 +4,7 @@
       <div class="user-panel-container">
           <div class="user-panel-wrapper">
               <div class="user-avatar-container">
-                <img src="../vendor/almasaeed2010/adminlte/dist/img/user1-128x128.jpg" class="user-avatar" alt="User Image">
+                <img src="../assets/img/images.jfif" class="user-avatar" alt="User Image">
               </div>
               <div class="user-info">
                 <h4 class="user-name"><?php echo $_SESSION['full_name']; ?></h4>
