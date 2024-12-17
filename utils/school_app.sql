@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 15, 2024 at 01:16 PM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Generation Time: Dec 17, 2024 at 01:08 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,18 +28,21 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `attendance` (
-  `id` int(10) UNSIGNED NOT NULL,
+  `id` int(11) NOT NULL,
   `student_id` int(10) UNSIGNED NOT NULL,
   `attendance_date` date NOT NULL,
-  `attendance` enum('present','absent') NOT NULL
+  `attendance` enum('present','absent') NOT NULL,
+  `teacher_id` int(11) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `attendance`
 --
 
-INSERT INTO `attendance` (`id`, `student_id`, `attendance_date`, `attendance`) VALUES
-(0, 15, '2024-12-15', 'present');
+INSERT INTO `attendance` (`id`, `student_id`, `attendance_date`, `attendance`, `teacher_id`) VALUES
+(6, 15, '2024-12-16', 'absent', NULL),
+(8, 16, '2024-12-16', 'present', NULL),
+(9, 17, '2024-12-16', 'absent', NULL);
 
 -- --------------------------------------------------------
 
@@ -79,7 +82,15 @@ INSERT INTO `grades` (`id`, `student_id`, `subject_id`, `quarter`, `written_test
 (77, 16, 5, 1, 24.00, 50.00, 14.00, 88.00, '2024-12-15 11:12:13'),
 (78, 16, 6, 1, 15.00, 50.00, 20.00, 85.00, '2024-12-15 11:12:13'),
 (79, 16, 7, 1, 14.00, 45.00, 20.00, 79.00, '2024-12-15 11:12:13'),
-(80, 16, 8, 1, 25.00, 42.00, 13.00, 80.00, '2024-12-15 11:12:13');
+(80, 16, 8, 1, 25.00, 42.00, 13.00, 80.00, '2024-12-15 11:12:13'),
+(81, 17, 1, 1, 12.00, 50.00, 20.00, 82.00, '2024-12-16 22:26:53'),
+(82, 17, 2, 1, 30.00, 23.00, 20.00, 73.00, '2024-12-16 22:26:53'),
+(83, 17, 3, 1, 30.00, 50.00, 20.00, 100.00, '2024-12-16 22:26:53'),
+(84, 17, 4, 1, 30.00, 50.00, 20.00, 100.00, '2024-12-16 22:26:53'),
+(85, 17, 5, 1, 30.00, 50.00, 20.00, 100.00, '2024-12-16 22:26:53'),
+(86, 17, 6, 1, 30.00, 34.00, 20.00, 84.00, '2024-12-16 22:26:53'),
+(87, 17, 7, 1, 30.00, 50.00, 20.00, 100.00, '2024-12-16 22:26:53'),
+(88, 17, 8, 1, 30.00, 24.00, 20.00, 74.00, '2024-12-16 22:26:53');
 
 -- --------------------------------------------------------
 
@@ -118,7 +129,8 @@ CREATE TABLE `students` (
 
 INSERT INTO `students` (`id`, `lrn`, `full_name`, `birth_date`, `sex`, `religion`, `street`, `barangay`, `municipality`, `province`, `contact_number`, `father_name`, `mother_name`, `guardian_name`, `relationship`, `guardian_contact`, `grade`, `section`, `learning_modality`, `remarks`, `created_at`, `updated_at`) VALUES
 (15, '117739160005', 'Tiongco, Jude Ledesma', '2024-12-11', 'Male', 'Catholic', 'Polopangyan', 'Old Sagay', 'Sagay', 'Negros Occidental', '09454413739', '', '', '', '', '', 'Grade 8', 'A', 'Face-to-Face', '', '2024-12-10 17:10:39', '2024-12-10 17:10:39'),
-(16, '117739160026', 'BOCALANGCO, JHON ISABELO', '2024-12-15', 'Male', 'Catholic', '123 street', 'CAMPO SANTIAGO', 'Sagay', 'Negros Occidental', '94555511236', '', 'BOCALANGCO,ELSIE,DELGADO,', '', 'Mother', '', 'Grade 8', 'A', 'Face-to-Face', '', '2024-12-15 09:56:31', '2024-12-15 09:56:31');
+(16, '117739160026', 'BOCALANGCO, JHON ISABELO', '2024-12-15', 'Male', 'Catholic', '123 street', 'CAMPO SANTIAGO', 'Sagay', 'Negros Occidental', '94555511236', '', 'BOCALANGCO,ELSIE,DELGADO,', '', 'Mother', '', 'Grade 8', 'A', 'Face-to-Face', '', '2024-12-15 09:56:31', '2024-12-15 09:56:31'),
+(17, '117696070022', 'Penaflor, Lovely Middle', '2024-12-17', 'Female', 'Roman Catholic', 'Sewahon', 'Barangay 1', 'Sewahon', 'Negros Occidental', '09454413739', 'Random Father', 'Random Mother', 'Secret', 'Secret', '09874561242', 'Grade 9', 'Prudence', 'Online', 'adfas', '2024-12-16 20:09:36', '2024-12-16 20:09:36');
 
 -- --------------------------------------------------------
 
@@ -157,7 +169,15 @@ INSERT INTO `student_card` (`id`, `student_id`, `subject_id`, `1st_quarter`, `2n
 (13, 16, 5, 88.00, NULL, NULL, NULL, '2024-12-15 11:12:13'),
 (14, 16, 6, 85.00, NULL, NULL, NULL, '2024-12-15 11:12:13'),
 (15, 16, 7, 79.00, NULL, NULL, NULL, '2024-12-15 11:12:13'),
-(16, 16, 8, 80.00, NULL, NULL, NULL, '2024-12-15 11:12:13');
+(16, 16, 8, 80.00, NULL, NULL, NULL, '2024-12-15 11:12:13'),
+(17, 17, 1, 82.00, NULL, NULL, NULL, '2024-12-16 22:26:53'),
+(18, 17, 2, 73.00, NULL, NULL, NULL, '2024-12-16 22:26:53'),
+(19, 17, 3, 100.00, NULL, NULL, NULL, '2024-12-16 22:26:53'),
+(20, 17, 4, 100.00, NULL, NULL, NULL, '2024-12-16 22:26:53'),
+(21, 17, 5, 100.00, NULL, NULL, NULL, '2024-12-16 22:26:53'),
+(22, 17, 6, 84.00, NULL, NULL, NULL, '2024-12-16 22:26:53'),
+(23, 17, 7, 100.00, NULL, NULL, NULL, '2024-12-16 22:26:53'),
+(24, 17, 8, 74.00, NULL, NULL, NULL, '2024-12-16 22:26:53');
 
 -- --------------------------------------------------------
 
@@ -190,7 +210,15 @@ INSERT INTO `student_subject` (`student_id`, `subject_id`) VALUES
 (16, 5),
 (16, 6),
 (16, 7),
-(16, 8);
+(16, 8),
+(17, 1),
+(17, 2),
+(17, 3),
+(17, 4),
+(17, 5),
+(17, 6),
+(17, 7),
+(17, 8);
 
 -- --------------------------------------------------------
 
@@ -226,7 +254,7 @@ INSERT INTO `subjects` (`id`, `subject_name`, `created_at`, `updated_at`) VALUES
 --
 
 CREATE TABLE `teachers` (
-  `id` int(10) UNSIGNED NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL,
   `teacher_id_num` varchar(50) NOT NULL,
   `full_name` varchar(255) NOT NULL,
   `birth_date` date DEFAULT NULL,
@@ -241,6 +269,13 @@ CREATE TABLE `teachers` (
   `section` varchar(10) DEFAULT NULL,
   `student_id` int(10) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `teachers`
+--
+
+INSERT INTO `teachers` (`id`, `teacher_id_num`, `full_name`, `birth_date`, `sex`, `religion`, `street`, `barangay`, `municipality`, `province`, `contact_number`, `grade`, `section`, `student_id`) VALUES
+(6, 'tch-12659', 'Penfiel, Lovely Middle', '2023-06-24', 'Female', 'Roman Catholic', 'Sewahon', 'Barangay 1', 'Sewahon', 'Negros Occidental', '09123456789', 'Grade 8', 'A', NULL);
 
 -- --------------------------------------------------------
 
@@ -269,6 +304,29 @@ CREATE TABLE `teacher_archive` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `teacher_student_assignments`
+--
+
+CREATE TABLE `teacher_student_assignments` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `teacher_id` int(10) UNSIGNED NOT NULL,
+  `student_id` int(10) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `teacher_student_assignments`
+--
+
+INSERT INTO `teacher_student_assignments` (`id`, `teacher_id`, `student_id`) VALUES
+(6, 4, 15),
+(7, 4, 16),
+(8, 5, 17),
+(9, 6, 15),
+(10, 6, 16);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -282,26 +340,32 @@ CREATE TABLE `users` (
   `contact_number` varchar(20) DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `student_id` int(11) DEFAULT NULL
+  `student_id` int(11) DEFAULT NULL,
+  `teacher_id` int(11) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `user_role`, `full_name`, `email`, `contact_number`, `is_active`, `created_at`, `student_id`) VALUES
-(2, 'admin001', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'System Administrator', 'admin@sewahon.edu.ph', '09123456789', 1, '2024-12-02 13:11:48', NULL),
-(5, 'tch-07703', '$2y$10$hLDjfpvqiGRbTjd0EAnWqu8J/CcrTGEvEbOkthTgtZAChjosibHJ6', 'teacher', 'Irene Cartaciano', 'irene@email.com', '09112233445', 1, '2024-12-02 16:39:32', NULL),
-(20, '117696071155', '$2y$10$jgOxz3GMwZUp2Q8a7Zmmc.D3bw0tjxLc4.Pa7UzOxMIs7TGHSskMy', 'student', 'Vergara, Colet Florenosos', 'colet@bini.com', '09987654321', 1, '2024-12-04 12:27:40', 13),
-(21, 'tch-09464', '$2y$10$PcL1XkJWRNvFFgXbKZ/4qerj5S.Z9rj.mmouOUAnzTbSAOyMpphIO', 'teacher', 'Mikhaela Janna Jimenea Lim', 'mikha@bini.com', '09111234567', 1, '2024-12-04 12:30:30', NULL),
-(22, '012345678910', '$2y$10$3d.vFHUVg6RIBmEYB0cofu8tJIlP9Ywb8ZIwCwxf9ldd8DTzQh15a', 'student', 'Sample Account', 'accountsample@gmail.com', '94555511236', 1, '2024-12-10 11:50:36', 14),
-(23, 'tch-01825', '$2y$10$AdNSZo5s8Y48IM6J/ivRS.eGvVTwI5Y2i89h4HhIaZOzYeppsINt2', 'teacher', 'Jude Ledesma Tiongco', 'dev@gmail.com', '09454413739', 1, '2024-12-10 11:51:51', NULL),
-(24, '117739160005', '$2y$10$I6crxOAt9UwqwB.Un2okROChNGmxAaCEFeshDHhhRI.dU/eFW38hm', 'student', 'Tiongco, Jude Ledesma', 'ledesma@gmail.com', '09454413739', 1, '2024-12-10 17:10:40', 15),
-(25, '117739160026', '$2y$10$AfaHFZrYL5ylZnDKN.ir1.3LAivXxSV5Hx5hn9Mep2CA6gQwVd8BG', 'student', 'BOCALANGCO, JHON ISABELO', NULL, '94555511236', 1, '2024-12-15 09:56:31', 16);
+INSERT INTO `users` (`id`, `username`, `password`, `user_role`, `full_name`, `email`, `contact_number`, `is_active`, `created_at`, `student_id`, `teacher_id`) VALUES
+(2, 'admin001', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'System Administrator', 'admin@sewahon.edu.ph', '09123456789', 1, '2024-12-02 13:11:48', NULL, NULL),
+(20, '117696071155', '$2y$10$jgOxz3GMwZUp2Q8a7Zmmc.D3bw0tjxLc4.Pa7UzOxMIs7TGHSskMy', 'student', 'Vergara, Colet Florenosos', 'colet@bini.com', '09987654321', 1, '2024-12-04 12:27:40', 13, NULL),
+(24, '117739160005', '$2y$10$2MM2lzgRoJ4ZXopjruLgbuNur/xNFsK3z4JdwCDHx9hHGLURR/RQq', 'student', 'Tiongco, Jude Ledesma', 'ledesma@gmail.com', '09454413739', 1, '2024-12-10 17:10:40', 15, NULL),
+(25, '117739160026', '$2y$10$/59Om6KRMi9kkr78BY5Ng.xeiPiGMubbi2Xpkg55xSl2VOJjAIYVG', 'student', 'BOCALANGCO, JHON ISABELO', 'isabelo@email.com', '94555511236', 1, '2024-12-15 09:56:31', 16, NULL),
+(30, 'tch-95740', '$2y$10$5LVKqM4ZTfpOn1P4aQYhxeneoSn537I0bs6EybpapDL7rtaC6QAX.', 'teacher', 'Penfiel, Lovely Middle', 'lovely@email.com', '94555511236', 1, '2024-12-16 20:51:45', NULL, NULL),
+(33, 'tch-12659', '$2y$10$IkFOha2H66eHNRBfG20NV.65seLf86ZAopUrneFR.FHPIUV1t20Ni', 'teacher', 'Penfiel, Lovely Middle', NULL, '09123456789', 1, '2024-12-17 00:03:53', NULL, 6);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `attendance`
+--
+ALTER TABLE `attendance`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `teacher_student_assignments_ibfk_1` (`teacher_id`);
 
 --
 -- Indexes for table `grades`
@@ -340,33 +404,56 @@ ALTER TABLE `subjects`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `teachers`
+--
+ALTER TABLE `teachers`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_teachers_id` (`id`),
+  ADD KEY `fk_student` (`student_id`);
+
+--
+-- Indexes for table `teacher_student_assignments`
+--
+ALTER TABLE `teacher_student_assignments`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `teacher_id` (`teacher_id`,`student_id`),
+  ADD KEY `student_id` (`student_id`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD KEY `fk_teacher_user` (`teacher_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
+-- AUTO_INCREMENT for table `attendance`
+--
+ALTER TABLE `attendance`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
 -- AUTO_INCREMENT for table `grades`
 --
 ALTER TABLE `grades`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
 -- AUTO_INCREMENT for table `students`
 --
 ALTER TABLE `students`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `student_card`
 --
 ALTER TABLE `student_card`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `subjects`
@@ -375,14 +462,33 @@ ALTER TABLE `subjects`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
+-- AUTO_INCREMENT for table `teachers`
+--
+ALTER TABLE `teachers`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `teacher_student_assignments`
+--
+ALTER TABLE `teacher_student_assignments`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `attendance`
+--
+ALTER TABLE `attendance`
+  ADD CONSTRAINT `fk_teacher_student` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `teacher_student_assignments_ibfk_1` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `grades`
@@ -404,6 +510,24 @@ ALTER TABLE `student_card`
 ALTER TABLE `student_subject`
   ADD CONSTRAINT `student_subject_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `student_subject_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `teachers`
+--
+ALTER TABLE `teachers`
+  ADD CONSTRAINT `fk_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `teacher_student_assignments`
+--
+ALTER TABLE `teacher_student_assignments`
+  ADD CONSTRAINT `teacher_student_assignments_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_teacher_user` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
