@@ -64,8 +64,7 @@
 
             <!-- Navbar component -->
             <?php include('../components/navbar.php');?>
-            <!-- Sidebar component -->
-            <?php include('../components/sidebar.php');?>
+            <?php include('../components/teacher_sidebar.php');?>
 
              <!-- Content Wrapper -->
              <div class="content-wrapper">
@@ -78,7 +77,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right">
-                                    <li class="breadcrumb-item"><a href="students.php">Student Table</a></li>
+                                    <li class="breadcrumb-item"><a href="student_record.php">Student Table</a></li>
                                     <li class="breadcrumb-item active">ADD GRADE</li>
                                 </ol>
                             </div>

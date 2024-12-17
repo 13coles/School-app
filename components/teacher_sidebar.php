@@ -40,7 +40,7 @@
             </a>
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="../teacher/student_grades.php" class="nav-link modern-nav-link">
+                <a href="../teacher/tc_ranking.php" class="nav-link modern-nav-link">
                   <i class="fas fa-trophy mr-2 ml-4"></i>
                   <p>Performance</p>
                 </a>

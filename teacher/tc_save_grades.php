@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $grade_exists = $stmt->fetchColumn();
     if ($grade_exists > 0) {
         $_SESSION['error'] = "This quarter already graded."; 
-        header("Location:  add_grade.php?student_id=$student_id");
+        header("Location:  tc_add_grade.php?student_id=$student_id");
         exit();
     }
     $grades = $_POST['grades'] ?? [];
@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     $_SESSION['success'] = "Grade submitted successfully!"; 
-    header("Location: tc_add_grade.php?student_id=$student_id");
+    header("Location: tc_view_grade.php?student_id=$student_id");
     exit();
 }
 ?>
