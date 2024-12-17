@@ -269,11 +269,13 @@ $(document).ready(function() {
 
     // Load Teachers Function
     function loadTeachers() {
+        console.log('Loading teachers...');
         $.ajax({
             url: 'fetch_teachers.php',
             type: 'GET',
             dataType: 'json',
             success: function(response) {
+                console.log('Response from server:', response);
                 if (response.status === 'success' && response.teachers && response.teachers.length > 0) {
                     teacherTable.clear();
             

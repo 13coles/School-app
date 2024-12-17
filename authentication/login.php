@@ -81,6 +81,8 @@
                 $_SESSION['user_role'] = $user['user_role'];
                 $_SESSION['full_name'] = $user['full_name'];
                 $_SESSION['teacher_id'] = $user['teacher_id'];
+                $_SESSION['student_id'] = $user['student_id'];
+                $_SESSION['teacher_id'] = $user['teacher_id'];
 
                 # If the logged-in user is a teacher, fetch their section
                 if ($role === 'teacher') {
@@ -89,6 +91,9 @@
             
                 # if the logged in user is a student, get the student id and store it
                 if ($role === 'student') {
+                    # add student_id to the session data too and check the debug_session.php file for debugging user data
+                    $_SESSION['student_id'] = $user['student_id'];
+
                     // Verify student record exists
                     $student = $pdo->prepare("SELECT id FROM students WHERE id = :student_id");
                     $student->execute([':student_id' => $user['student_id']]);
@@ -100,9 +105,6 @@
                         header("Location: ../index.php");
                         exit();
                     }
-            
-                    # add student_id to the session data too and check the debug_session.php file for debugging user data
-                    $_SESSION['student_id'] = $user['student_id'];
                 }            
 
                 # redirect based on role

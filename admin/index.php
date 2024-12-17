@@ -1,10 +1,45 @@
 <?php 
     session_start();
 
+    require_once("../utils/db_connection.php");
     require_once('../utils/access_control.php');
     
     checkAccess(['admin']);
+
+    function calculateOverallAttendancePercentage($month, $year) {
+        global $pdo;
     
+        $query = $pdo->prepare("
+            SELECT 
+                student_id, 
+                COUNT(CASE WHEN attendance = 'present' THEN 1 END) AS days_present,
+                COUNT(*) AS total_days
+            FROM attendance
+            WHERE MONTH(attendance_date) = :month AND YEAR(attendance_date) = :year
+            GROUP BY student_id
+        ");
+    
+        $query->execute([':month' => $month, ':year' => $year]);
+        $attendanceRecords = $query->fetchAll(PDO::FETCH_ASSOC);
+    
+        $totalDaysPresent = 0;
+        $totalSchoolDays = 0;
+    
+        foreach ($attendanceRecords as $record) {
+            $totalDaysPresent += $record['days_present'];
+            $totalSchoolDays += $record['total_days'];
+        }
+    
+        if ($totalSchoolDays > 0) {
+            return round(($totalDaysPresent / $totalSchoolDays) * 100, 2); 
+        } else {
+            return 0; // No school days
+        }
+    }
+    
+    $currentMonth = date('n'); 
+    $currentYear = date('Y'); 
+    $overallAttendancePercentage = calculateOverallAttendancePercentage($currentMonth, $currentYear);
 ?>
 
 <!-- Dashboard page -->
@@ -65,7 +100,7 @@
                                 <i class="ion ion-stats-bars text-success"></i>
                             </div>
                             <div class="inner">
-                                <h3>53<sup style="font-size: 0.6em">%</sup></h3>
+                                <h3><?php echo htmlspecialchars($overallAttendancePercentage); ?><sup style="font-size: 0.6em">%</sup></h3>
                                 <p>Attendance</p>
                             </div>
                         </div>
