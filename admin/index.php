@@ -15,9 +15,9 @@
     <body class="hold-transition sidebar-mini">
         <div class="wrapper">
             <!-- Preloader -->
-            <div class="preloader flex-column justify-content-center align-items-center">
+            <!-- <div class="preloader flex-column justify-content-center align-items-center">
                 <img class="animation__wobble" src="../assets/img/images.jfif" alt="AdminLTELogo" height="180" width="180">
-            </div>
+            </div> -->
             
             <!-- Navbar component -->
             <?php include('../components/navbar.php');?>

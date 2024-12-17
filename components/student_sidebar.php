@@ -4,7 +4,7 @@
       <div class="user-panel-container">
           <div class="user-panel-wrapper">
               <div class="user-avatar-container">
-              <img src="./vendor/almasaeed2010/adminlte/dist/img/user1-128x128.jpg" class="user-avatar" alt="User Image">
+              <img src="../assets/img/images.jfif" class="user-avatar" alt="User Image">
               </div>
               <div class="user-info">
                 <h4 class="user-name"><?php echo $_SESSION['full_name']; ?></h4>
@@ -39,11 +39,9 @@
               <i class="nav-icon fas fa-file-alt"></i> 
               <p>Report Card</p>
             </a>
-<<<<<<< Updated upstream
-=======
             <ul class="nav nav-treeview">
               <li class="nav-item">
-                <a href="#" class="nav-link modern-nav-link">
+                <a href="my_performance.php" class="nav-link modern-nav-link">
                   <i class="fas fa-trophy mr-2"></i>
                   <p>Performance</p>
                 </a>
@@ -55,11 +53,7 @@
                 </a>
               </li>
             </ul>
->>>>>>> Stashed changes
           </li>
-
-          
-          
         </ul>
       </nav>
     </div>

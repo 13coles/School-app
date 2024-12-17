@@ -7,81 +7,117 @@ checkAccess(['teacher']);
 header('Content-Type: application/json');
 
 try {
-    // Detailed logging of session and POST data
-    error_log("Session Data: " . json_encode($_SESSION));
-    error_log("POST Data: " . json_encode($_POST));
+    error_log("Attendance Submission - Session Data: " . json_encode($_SESSION));
+    error_log("Attendance Submission - POST Data: " . json_encode($_POST));
 
-    // More robust access check
     if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'teacher') {
-        throw new Exception("Unauthorized access: Not a teacher");
+        throw new UnauthorizedAccessException("Unauthorized access: Not a teacher");
     }
 
-    // Validate teacher_id from session
     if (!isset($_SESSION['teacher_id'])) {
-        throw new Exception("Teacher ID not found in session");
+        throw new SessionException("Teacher ID not found in session");
     }
 
     $teacherId = $_SESSION['teacher_id'];
     $studentId = $_POST['student_id'] ?? null;
-    $attendanceStatus = $_POST['attendance'] ?? null;
-    $attendanceDate = date('Y-m-d'); // Default to current date
+    $attendanceStatus = strtolower($_POST['attendance'] ?? null);
+    $attendanceDate = date('Y-m-d'); 
 
-    // More detailed input validation
     if (empty($studentId)) {
-        throw new Exception("Student ID is required");
+        throw new ValidationException("Student ID is required");
     }
 
-    if (empty($attendanceStatus) || !in_array($attendanceStatus, ['present', 'absent'])) {
-        throw new Exception("Invalid attendance status");
+    if (empty($attendanceStatus) || !in_array($attendanceStatus, ['present', 'absent', 'late'])) {
+        throw new ValidationException("Invalid attendance status");
     }
 
-    // Verify student exists
-    $studentCheck = $pdo->prepare("SELECT id FROM students WHERE id = ?");
-    $studentCheck->execute([$studentId]);
-    if (!$studentCheck->fetch()) {
-        throw new Exception("Student not found");
-    }
-
-    // Start a database transaction
-    $pdo->beginTransaction();
-
-    // 1. Insert/Update Attendance Record
-    $attendanceQuery = "
-        INSERT INTO attendance (
-            student_id, 
-            attendance_date, 
-            attendance,
-            teacher_id
-        ) VALUES (
-            :student_id, 
-            :attendance_date, 
-            :attendance,
-            :teacher_id
-        ) ON DUPLICATE KEY UPDATE 
-            attendance = :attendance,
-            teacher_id = :teacher_id
-    ";
-
-    $attendanceStmt = $pdo->prepare($attendanceQuery);
-    $attendanceResult = $attendanceStmt->execute([
-        ':student_id' => $studentId,
-        ':attendance_date' => $attendanceDate,
-        ':attendance' => $attendanceStatus,
-        ':teacher_id' => $teacherId
+    $studentAssignmentCheck = $pdo->prepare("
+        SELECT 1 FROM teacher_student_assignments 
+        WHERE teacher_id = :teacher_id AND student_id = :student_id
+    ");
+    $studentAssignmentCheck->execute([
+        ':teacher_id' => $teacherId,
+        ':student_id' => $studentId
     ]);
 
-    // Check if the execution was successful
-    if (!$attendanceResult) {
-        throw new Exception("Failed to record attendance");
+    if (!$studentAssignmentCheck->fetch()) {
+        throw new AccessDeniedException("Student not assigned to this teacher");
     }
 
-    // Commit the transaction
+    // Check if attendance record exists for today
+    $checkAttendanceQuery = $pdo->prepare("
+        SELECT id FROM attendance 
+        WHERE student_id = :student_id 
+        AND attendance_date = :attendance_date
+    ");
+    $checkAttendanceQuery->execute([
+        ':student_id' => $studentId,
+        ':attendance_date' => $attendanceDate
+    ]);
+    $existingAttendance = $checkAttendanceQuery->fetch(PDO::FETCH_ASSOC);
+
+    $pdo->beginTransaction();
+
+    // update attendance for the current date if student attendance already exists
+    if ($existingAttendance) {
+        $updateQuery = "
+            UPDATE attendance 
+            SET 
+                attendance = :attendance,
+                teacher_id = :teacher_id
+            WHERE 
+                student_id = :student_id 
+                AND attendance_date = :attendance_date
+        ";
+
+        $updateStmt = $pdo->prepare($updateQuery);
+        $updateResult = $updateStmt->execute([
+            ':student_id' => $studentId,
+            ':attendance_date' => $attendanceDate,
+            ':attendance' => $attendanceStatus,
+            ':teacher_id' => $teacherId
+        ]);
+
+        if (!$updateResult) {
+            throw new DatabaseException("Failed to update attendance");
+        }
+    } 
+    // If no existing attendance, insert new record
+    else {
+        $insertQuery = "
+            INSERT INTO attendance (
+                student_id, 
+                attendance_date, 
+                attendance,
+                teacher_id
+            ) VALUES (
+                :student_id, 
+                :attendance_date, 
+                :attendance,
+                :teacher_id
+            )
+        ";
+
+        $insertStmt = $pdo->prepare($insertQuery);
+        $insertResult = $insertStmt->execute([
+            ':student_id' => $studentId,
+            ':attendance_date' => $attendanceDate,
+            ':attendance' => $attendanceStatus,
+            ':teacher_id' => $teacherId
+        ]);
+
+        if (!$insertResult) {
+            throw new DatabaseException("Failed to record attendance");
+        }
+    }
+
     $pdo->commit();
 
-    // Prepare response
     $response = [
         'status' => 'success',
-        'message' => 'Attendance recorded successfully',
+        'message' => $existingAttendance 
+            ? 'Attendance updated successfully' 
+            : 'Attendance recorded successfully',
         'details' => [
             'student_id' => $studentId,
             'attendance' => $attendanceStatus,
@@ -93,19 +129,41 @@ try {
     echo json_encode($response);
 
 } catch (Exception $e) {
-    // Rollback transaction in case of error
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
 
-    // Log the detailed error
-    error_log("Attendance Error: " . $e->getMessage());
-    error_log("Trace: " . $e->getTraceAsString());
+    $statusCode = 400;
+    $errorType = 'ValidationError';
+    $errorMessage = $e->getMessage();
 
-    // Send error response
-    http_response_code(400);
+    if ($e instanceof UnauthorizedAccessException) {
+        $statusCode = 403;
+        $errorType = 'AuthorizationError';
+    } elseif ($e instanceof SessionException) {
+        $statusCode = 401;
+        $errorType = 'SessionError';
+    } elseif ($e instanceof AccessDeniedException) {
+        $statusCode = 403;
+        $errorType = 'AccessDeniedError';
+    } elseif ($e instanceof DatabaseException) {
+        $statusCode = 500;
+        $errorType = 'DatabaseError';
+    }
+
+    error_log("Attendance Error [{$errorType}]: " . $errorMessage);
+
+    http_response_code($statusCode);
     echo json_encode([
         'status' => 'error',
-        'message' => $e->getMessage()
+        'type' => $errorType,
+        'message' => $errorMessage
     ]);
+    exit;
 }
+
+class UnauthorizedAccessException extends Exception {}
+class SessionException extends Exception {}
+class ValidationException extends Exception {}
+class AccessDeniedException extends Exception {}
+class DatabaseException extends Exception {}

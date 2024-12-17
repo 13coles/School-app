@@ -27,6 +27,7 @@
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+            <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/select2/css/select2.min.css">
             <link rel="stylesheet" href="../assets//css/students_modal.css">
     </head>
     <body class="hold-transition sidebar-mini">
@@ -252,6 +253,14 @@
                                                     <?php foreach ($sections as $section): ?>
                                                         <option value="<?php echo htmlspecialchars($section); ?>"><?php echo htmlspecialchars($section); ?></option>
                                                     <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="assigned_students">Assigned Students</label>
+                                                <select multiple class="form-control" id="assigned_students" name="assigned_students[]">
+                                                    <!-- Will be populated dynamically -->
                                                 </select>
                                             </div>
                                         </div>
@@ -626,6 +635,7 @@
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+        <script src="../vendor/almasaeed2010/adminlte/plugins/select2/js/select2.full.min.js"></script>
 
         <script src="../assets/js/teachers.js"></script>
     </body>

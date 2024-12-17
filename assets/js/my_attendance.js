@@ -1,6 +1,4 @@
-// my_attendance.js
 $(function() {
-    // Ensure DataTables is available before initializing
     if ($.fn.DataTable) {
         initializeDataTable();
     } else {
@@ -25,7 +23,6 @@ function initializeDataTable() {
         }
     });
 
-    // Load initial attendance data
     loadAttendance();
 
     // Search functionality
@@ -35,7 +32,6 @@ function initializeDataTable() {
 }
 
 function loadAttendance(selectedDate = null) {
-    // Convert the date to the correct format for the server
     const dateToFetch = selectedDate 
         ? moment(selectedDate).format('YYYY-MM-DD') 
         : moment().format('YYYY-MM-DD');
@@ -50,14 +46,11 @@ function loadAttendance(selectedDate = null) {
         success: function (response) {
             console.log('Fetch Attendance Response:', response);
 
-            // Clear the table first
             let attendanceTable = $('#personalRecordTable').DataTable();
             attendanceTable.clear();
 
-            // Check if we have a successful response with an array
             if (response.status === 'success') {
                 if (response.attendance && response.attendance.length > 0) {
-                    // Populate the table with records
                     response.attendance.forEach((record) => {
                         attendanceTable.row.add([
                             record.lrn,
@@ -68,23 +61,22 @@ function loadAttendance(selectedDate = null) {
                             record.attendance 
                                 ? `<span class="badge badge-${record.attendance === 'present' ? 'success' : 'danger'}">${record.attendance}</span>`
                                 : 'N/A',
-                            record.attendance_date ? formatDate(record.attendance_date) : 'Not Recorded'
+                            record.attendance_date ? formatDate(record.attendance_date) : 'Not Recorded',
+                            record.teacher_name || 'N/A'
                         ]);
                     });
 
                     attendanceTable.draw();
                     console.log(`Loaded ${response.attendance.length} attendance records`);
                 } else {
-                    // No records found
                     attendanceTable.draw();
                     Swal.fire({
                         icon: 'info',
                         title: 'No Attendance Records',
-                        text: response.message || 'No attendance records found for the selected date.',
+                        text: 'No attendance records found.',
                     });
                 }
             } else {
-                // Error in response
                 attendanceTable.draw();
                 Swal.fire({
                     icon: 'error',
@@ -102,11 +94,9 @@ function loadAttendance(selectedDate = null) {
                 responseStatus: xhr.status
             });
             
-            // Clear the table on error
             let attendanceTable = $('#personalRecordTable').DataTable();
             attendanceTable.clear().draw();
             
-            // More detailed error handling
             let errorMessage = 'Could not fetch attendance records.';
             
             if (xhr.status === 404) {
@@ -116,7 +106,6 @@ function loadAttendance(selectedDate = null) {
             } else if (status === 'parsererror') {
                 errorMessage = 'Invalid response from server. Response is not valid JSON.';
                 
-                // Try to parse and log the response
                 try {
                     console.error('Attempted to parse response:', JSON.parse(xhr.responseText));
                 } catch (parseError) {
@@ -140,7 +129,6 @@ function formatDate(dateString) {
     return date.toLocaleDateString('en-US', options);
 }
 
-// Ensure moment.js is loaded before using it
 if (typeof moment === 'function') {
     // Date picker initialization
     $('#datepicker').datepicker({
