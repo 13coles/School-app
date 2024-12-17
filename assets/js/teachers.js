@@ -175,9 +175,17 @@ $(document).ready(function() {
         });
     });
 
-    function fetchStudents() {
-        const grade = $('#grade').val();
-        const section = $('#section').val();
+    function fetchStudents(options = {}) {
+        const {
+            gradeSelector = '#grade',
+            sectionSelector = '#section',
+            studentsSelector = '#assigned_students',
+            isEditModal = false
+        } = options;
+    
+        const grade = $(gradeSelector).val();
+        const section = $(sectionSelector).val();
+        const $studentsSelect = $(studentsSelector);
     
         if (grade && section) {
             $.ajax({
@@ -189,13 +197,19 @@ $(document).ready(function() {
                 },
                 dataType: 'json',
                 success: function(response) {
-                    console.log('Full response:', response); // Log full response
+                    console.log('Full response:', response); 
+    
+                    // Clear existing options
+                    $studentsSelect.empty();
     
                     if (response && response.status === 'success') {
-                        const $studentsSelect = $('#assigned_students');
-                        $studentsSelect.empty();
-    
                         if (response.students && response.students.length > 0) {
+                            // Add default prompt for non-multiple select
+                            if (!isEditModal) {
+                                $studentsSelect.append('<option value="">Select Students</option>');
+                            }
+    
+                            // Populate students
                             response.students.forEach(student => {
                                 $studentsSelect.append(
                                     `<option value="${student.id}">
@@ -204,28 +218,52 @@ $(document).ready(function() {
                                 );
                             });
     
-                            // Check if select2 method exists before calling
+                            // Initialize or reinitialize Select2
                             if ($.fn.select2) {
-                                // Enable multiple selection with search
                                 $studentsSelect.select2({
                                     placeholder: "Select students",
                                     allowClear: true,
-                                    width: '100%'
+                                    width: '100%',
+                                    multiple: isEditModal  // Enable multiple selection for edit modal
                                 });
+    
+                                // Trigger the change event to update the select2 display
+                                $studentsSelect.trigger('change');
                             } else {
-                                console.warn('Select2 is not loaded');
+                                // Fallback for browsers without Select2
+                                if (isEditModal) {
+                                    $studentsSelect.attr('multiple', 'multiple');
+                                }
                             }
+    
+                            // Show student count
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Students Found',
+                                text: `${response.students.length} students available for selection`,
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
                         } else {
+                            // No students found
                             $studentsSelect.append('<option value="">No students found</option>');
                             
                             Swal.fire({
                                 icon: 'info',
                                 title: 'No Students',
-                                text: 'No students found for this grade and section'
+                                text: 'No students found for this grade and section',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 2000
                             });
                         }
                     } else {
+                        // Error in response
                         console.error('Invalid response:', response);
+                        
                         Swal.fire({
                             icon: 'error',
                             title: 'Fetch Error',
@@ -261,11 +299,34 @@ $(document).ready(function() {
                     });
                 }
             });
+        } else {
+            $studentsSelect.empty();
+            
+            if ($.fn.select2) {
+                $studentsSelect.select2('destroy');
+            }
         }
     }
-
-    // Trigger student fetching when grade and section change
-    $('#grade, #section').on('change', fetchStudents);
+    
+    $('#grade, #section').on('change', function() {
+        fetchStudents({
+            gradeSelector: '#grade',
+            sectionSelector: '#section',
+            studentsSelector: '#assigned_students',
+            isEditModal: false
+        });
+    });
+    
+    $('#edit_grade, #edit_section').on('change', function() {
+        fetchStudents({
+            gradeSelector: '#edit_grade',
+            sectionSelector: '#edit_section',
+            studentsSelector: '#assigned_students', 
+            isEditModal: true
+        });
+    });
+    
+    
 
     // Load Teachers Function
     function loadTeachers() {
@@ -443,7 +504,8 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.status === 'success') {
                     const teacher = response.teacher;
-    
+                    const assignedStudents = response.assigned_students || [];
+
                     // Parse full name
                     const nameParts = teacher.full_name.split(',').map(part => part.trim());
                     const lastNamePart = nameParts[0] || '';
@@ -451,7 +513,7 @@ $(document).ready(function() {
                     
                     const firstName = firstAndMiddleNames[0] || '';
                     const middleName = firstAndMiddleNames.slice(1).join(' ') || '';
-    
+
                     // Populate edit form
                     $('#edit_teacher_id').val(teacher.id);
                     $('#edit_teacher_id_num').val(teacher.teacher_id_num);
@@ -475,9 +537,20 @@ $(document).ready(function() {
                     $('#edit_province').val(teacher.province || '');
                     
                     // Professional Information
-                    $('#edit_grade').val(teacher.grade|| '');
+                    $('#edit_grade').val(teacher.grade || '');
                     $('#edit_section').val(teacher.section || '');
-    
+
+                    // Fetch and populate students for the selected grade and section
+                    if (teacher.grade && teacher.section) {
+                        fetchStudents({
+                            gradeSelector: '#edit_grade',
+                            sectionSelector: '#edit_section',
+                            studentsSelector: '#assigned_students',
+                            isEditModal: true,
+                            preselectedStudents: assignedStudents.map(student => student.id)
+                        });
+                    }
+
                     $('#editTeacherModal').modal('show');
                 } else {
                     Swal.fire({
@@ -493,7 +566,7 @@ $(document).ready(function() {
                     error: error,
                     responseText: xhr.responseText
                 });
-    
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Network Error',
@@ -538,12 +611,16 @@ $(document).ready(function() {
             },
             success: function(response) {
                 console.log('Update Response:', response);
-    
+
                 if (response.status === 'success') {
                     Swal.fire({
                         icon: 'success',
                         title: 'Success',
-                        text: response.message || 'Teacher record updated successfully',
+                        html: `
+                            Teacher record updated successfully
+                            <br>
+                            <small>Assigned Students: ${response.assigned_students_count || 0}</small>
+                        `,
                         timer: 1500,
                         showConfirmButton: false
                     }).then(() => {
@@ -566,20 +643,25 @@ $(document).ready(function() {
                     error: error,
                     responseText: xhr.responseText
                 });
-    
+
                 let errorMessage = 'Could not update teacher record';
+                let errorDetails = '';
                 
                 try {
                     const errorResponse = JSON.parse(xhr.responseText);
                     errorMessage = errorResponse.message || errorMessage;
+                    errorDetails = errorResponse.error_details || '';
                 } catch (e) {
                     errorMessage = xhr.statusText || errorMessage;
                 }
-    
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Update Error',
-                    text: errorMessage,
+                    html: `
+                        ${errorMessage}
+                        ${errorDetails ? `<br><small>Details: ${errorDetails}</small>` : ''}
+                    `,
                     showConfirmButton: true
                 });
             },

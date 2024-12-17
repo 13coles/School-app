@@ -258,8 +258,8 @@
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="assigned_students">Assigned Students</label>
-                                                <select multiple class="form-control" id="assigned_students" name="assigned_students[]">
+                                                <label for="edit_assigned_students">Assigned Students</label>
+                                                <select multiple class="form-control" id="edit_assigned_students" name="assigned_students[]">
                                                     <!-- Will be populated dynamically -->
                                                 </select>
                                             </div>
@@ -551,7 +551,14 @@
                                                 </select>
                                             </div>
                                         </div>
-
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="assigned_students">Assigned Students</label>
+                                                <select multiple class="form-control" id="assigned_students" name="assigned_students[]">
+                                                    <!-- Will be populated dynamically -->
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
