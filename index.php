@@ -68,7 +68,7 @@
 
                         <!-- Dynamic Role Based Form -->
                         <div id="login-form" class="hidden">
-                            <form id="dynamic-form" action="./authentication/login.php" method="post" class="space-y-4">
+                            <form id="dynamic-form" action="../authentication/login.php" method="post" class="space-y-4">
                                 <input type="hidden" name="role" id="role-input">
                                 
                                 <div class="mb-4">

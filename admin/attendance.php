@@ -23,9 +23,9 @@
     <body class="hold-transition sidebar-mini">
         <div class="wrapper">
             <!-- Preloader -->
-            <!-- <div class="preloader flex-column justify-content-center align-items-center">
+            <div class="preloader flex-column justify-content-center align-items-center">
                 <img class="animation__wobble" src="../assets/img/images.jfif" alt="AdminLTELogo" height="180" width="180">
-            </div> -->
+            </div>
 
             <!-- Navbar component -->
             <?php include('../components/navbar.php');?>
@@ -55,6 +55,12 @@
                 <div class="content">
                     <div class="container-fluid">
                         <div class="card">
+                            <div class="card-header">
+                                <!-- Print button -->
+                                <div class="row mr-3 d-flex items-center justify-end">
+                                    <button class="btn btn-primary text-sm">Print</button>
+                                </div>
+                            </div>
                             <div class="card-body">
                                 <!-- Filters -->
                                 <div class="row mb-3">
@@ -81,7 +87,6 @@
                                             <th class="text-center">Section</th>
                                             <th class="text-center">Attendance</th>
                                             <th class="text-center">Attendance Date</th>
-                                            <th class="text-center">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>

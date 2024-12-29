@@ -1,4 +1,5 @@
 let studentTable; 
+let isAttendanceMode = false;
 
 $(document).ready(function() {
     loadStudentRecord();
@@ -177,7 +178,7 @@ $(document).ready(function() {
         autoWidth: false,
         pageLength: 10,
         columns: [
-            { data: 'id', visible : false}, 
+            { data: 'id', visible: false },
             { data: 'lrn' },
             { data: 'full_name' },
             { data: 'sex' },
@@ -190,30 +191,46 @@ $(document).ready(function() {
             { 
                 data: null,
                 render: function(data, type, row) {
-                    return `
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item view-student" data-id="${row.id}">
-                                <i class="fas fa-eye text-info mr-2"></i> View
-                            </a>
-                            <a class="dropdown-item view-grades" href="../teacher/tc_view_grade.php?student_id=${row.id}" style="cursor:default;">
-                                <i class="fas fa-book-open text-info mr-2"></i> View Card
-                            </a>
-                            <a class="dropdown-item view-grades" href="../teacher/tc_add_grade.php?student_id=${row.id}" style="cursor:default;">
-                                <i class="fas fa-pencil-alt text-info mr-2"></i> Add Grade
-                            </a>
-                            <a class="dropdown-item view-attendance" style="cursor:default;">
-                                <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
-                            </a>
-                            <a class="dropdown-item edit-student" data-id="${row.id}">
-                                <i class="fas fa-edit text-success mr-2"></i> Edit
-                            </a>
+                    const attendanceHtml = `
+                        <div class="attendance-group ml-2 d-inline-block" style="display: ${isAttendanceMode ? 'inline-block' : 'none'};">
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="attendance_${row.id}" value="PRESENT" data-student-id="${row.id}">
+                                <label class="form-check-label">P</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="attendance_${row.id}" value="ABSENT" data-student-id="${row.id}">
+                                <label class="form-check-label">A</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" name="attendance_${row.id}" value="LATE" data-student-id="${row.id}">
+                                <label class="form-check-label">L</label>
+                            </div>
                         </div>
-                    </div>
                     `;
+
+                    const dropdownHtml = `
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item view-student" data-id="${row.id}">
+                                    <i class="fas fa-eye text-primary mr-2"></i> View
+                                </a>
+                                <a class="dropdown-item view-grades" href="../teacher/tc_view_grade.php?student_id=${row.id}">
+                                    <i class="fas fa-book-open text-warning mr-2"></i> View Card
+                                </a>
+                                <a class="dropdown-item view-grades" href="../teacher/tc_add_grade.php?student_id=${row.id}" style="cursor:default;">
+                                    <i class="fas fa-pencil-alt text-info mr-2"></i> Add Grade
+                                </a>
+                                <a class="dropdown-item edit-student" data-id="${row.id}">
+                                    <i class="fas fa-edit text-success mr-2"></i> Edit
+                                </a>
+                            </div>
+                        </div>
+                    `;
+
+                    return attendanceHtml + dropdownHtml;
                 }
             }
         ]
@@ -221,9 +238,8 @@ $(document).ready(function() {
 
     $(document).on('click', '.view-attendance', function() {
         const row = $(this).closest('tr'); 
-        // Use the first column (id) which is now hidden in the DataTable configuration
         const rowData = studentTable.row(row).data();
-        const studentId = rowData.id; // Directly access the ID from row data
+        const studentId = rowData.id; 
         const studentName = rowData.full_name; 
         
         console.log('Attendance Modal Debug:', {
@@ -231,10 +247,8 @@ $(document).ready(function() {
             studentName: studentName
         });
     
-        // Set the student ID in the modal's data attribute for later retrieval
         $('#attendanceModal').data('student-id', studentId);
     
-        // Update the modal label with student name
         $('#attendanceModalLabel').html(`
             <i class="fas fa-calendar-check mr-2 text-success"></i>
             Attendance for ${studentName}
@@ -242,73 +256,91 @@ $(document).ready(function() {
     
         $('#attendanceModal').modal('show'); 
     }); 
+
+    $('.card-body').append(`
+        <div id="attendanceActions" style="display:none;" class="text-right mt-3">
+            <button id="saveAttendance" class="btn btn-success mr-2">
+                <i class="fas fa-save mr-1"></i> Save Attendance
+            </button>
+        </div>
+    `);
+    
+    // Attendance toggle to open attendance mode
+    $('#attendanceToggle').on('click', function() {
+        isAttendanceMode = !isAttendanceMode;
+        
+        if (isAttendanceMode) {
+            $(this).html('<i class="fas fa-times mr-2"></i>Cancel Attendance');
+            $(this).removeClass('btn-primary').addClass('btn-danger');
+            $('.attendance-group').show();
+            $('#attendanceActions').show();
+        } else {
+            $(this).html('<i class="fas fa-calendar-check mr-2"></i>Add Attendance');
+            $(this).removeClass('btn-danger').addClass('btn-primary');
+            $('.attendance-group').hide();
+            $('#attendanceActions').hide();
+            $('input[type="radio"]').prop('checked', false);
+        }
+    });
     
     // Modify the attendance saving function to use the modal's data attribute
     $('#saveAttendance').on('click', function() {
-        // Retrieve the student ID from the modal's data attribute
-        const studentId = $('#attendanceModal').data('student-id');
-        const studentName = $('#attendanceModalLabel').text().replace('Attendance for ', '').trim();
-        const attendanceStatus = $('input[name="attendanceStatus"]:checked').val();
-    
-        // Validate attendance selection
-        if (!attendanceStatus) {
+        const attendanceData = [];
+        
+        $('.attendance-group input:checked').each(function() {
+            const studentId = $(this).data('student-id');
+            const attendance = $(this).val().toLowerCase();
+            
+            attendanceData.push({
+                student_id: studentId,
+                attendance: attendance
+            });
+        });
+
+        if (attendanceData.length === 0) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Attendance Required',
-                text: 'Please select an attendance status for ' + studentName
+                title: 'No Attendance Marked',
+                text: 'Please mark attendance for at least one student.'
             });
             return;
         }
-    
-        // Debugging logs
-        console.log('Student ID:', studentId);
-        console.log('Student Name:', studentName);
-        console.log('Attendance Status:', attendanceStatus);
-    
-        // AJAX request to save attendance
-        $.ajax({
-            url: 'add_attendance.php',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                student_id: studentId,
-                attendance: attendanceStatus
-            },
-            success: function(response) {
+
+        // Submit each attendance record individually
+        const promises = attendanceData.map(data => {
+            return $.ajax({
+                url: 'add_attendance.php',
+                type: 'POST',
+                data: data
+            });
+        });
+
+        Promise.all(promises)
+            .then(() => {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Attendance Recorded',
-                    text: `Attendance for ${studentName} marked as ${attendanceStatus}`,
-                    timer: 2000,
-                    timerProgressBar: true
+                    title: 'Success',
+                    text: 'Attendance recorded successfully'
+                }).then(() => {
+                    // Reset attendance mode
+                    isAttendanceMode = false;
+                    $('#attendanceToggle').click();
                 });
-    
-                // Close the attendance modal
-                $('#attendanceModal').modal('hide');
-            },
-            error: function(xhr, status, error) {
-                console.error('Attendance Error:', xhr);
-                console.error('Response Text:', xhr.responseText);
-                
-                let errorMessage = 'Failed to record attendance';
-                let errorDetails = 'Unknown error';
-    
-                if (xhr.responseJSON) {
-                    errorMessage = xhr.responseJSON.message || errorMessage;
-                    errorDetails = xhr.responseJSON.type || 'Error';
-                }
-    
+            })
+            .catch((error) => {
+                console.error('Error saving attendance:', error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Attendance Error',
-                    html: `
-                        <p><strong>Error:</strong> ${errorMessage}</p>
-                        <p><strong>Details:</strong> ${errorDetails}</p>
-                    `,
-                    footer: '<small>Please contact support if the issue persists</small>'
+                    title: 'Error',
+                    text: 'Failed to record attendance'
                 });
-            }
-        });
+            });
+    });
+
+    // Cancel attendance handler
+    $('#cancelAttendance').on('click', function() {
+        isAttendanceMode = false;
+        $('#attendanceToggle').click();
     });
 
     // Function to load student records

@@ -82,6 +82,7 @@ function loadTeachers() {
     });
 }
 
+// function to fetch attendance records
 function loadAttendance(selectedDate = null, selectedTeacherId = null) {
     // Convert the date to the correct format for the server
     const dateToFetch = selectedDate 
@@ -108,6 +109,20 @@ function loadAttendance(selectedDate = null, selectedTeacherId = null) {
                 if (response.attendance && response.attendance.length > 0) {
                     // Populate the table with records
                     response.attendance.forEach((record) => {
+                        // Function to determine badge color based on attendance status
+                        const getBadgeClass = (status) => {
+                            switch(status.toLowerCase()) {
+                                case 'present':
+                                    return 'success';
+                                case 'absent':
+                                    return 'danger';
+                                case 'late':
+                                    return 'warning';
+                                default:
+                                    return 'secondary';
+                            }
+                        };
+
                         attendanceTable.row.add([
                             record.lrn,
                             record.full_name,
@@ -115,26 +130,9 @@ function loadAttendance(selectedDate = null, selectedTeacherId = null) {
                             record.grade || 'N/A',
                             record.section || 'N/A',
                             record.attendance 
-                                ? `<span class="badge badge-${record.attendance === 'present' ? 'success' : 'danger'}">${record.attendance}</span>`
+                                ? `<span class="badge badge-${getBadgeClass(record.attendance)}">${record.attendance.toUpperCase()}</span>`
                                 : 'N/A',
                             record.attendance_date ? formatDate(record.attendance_date) : 'Not Recorded',
-                            `
-                            <div class="dropdown">
-                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right">
-                                    <a class="dropdown-item edit-attendance" style="cursor: default;"
-                                        data-student-id="${record.student_id}" 
-                                        data-lrn="${record.lrn}" 
-                                        data-name="${record.full_name}" 
-                                        data-attendance="${record.attendance}" 
-                                        data-attendance-date="${record.attendance_date}">
-                                        <i class="fas fa-edit text-success mr-2"></i> Edit
-                                    </a>
-                                </div>
-                            </div>
-                            `,
                             record.student_id,
                         ]);
                     });
@@ -151,7 +149,6 @@ function loadAttendance(selectedDate = null, selectedTeacherId = null) {
                     });
                 }
             } else {
-                // Error in response
                 attendanceTable.draw();
                 Swal.fire({
                     icon: 'error',
@@ -163,7 +160,6 @@ function loadAttendance(selectedDate = null, selectedTeacherId = null) {
         error: function (xhr, status, error) {
             console.error('AJAX Error:', status, error);
             
-            // Clear the table on error
             attendanceTable.clear().draw();
             
             Swal.fire({
@@ -175,96 +171,314 @@ function loadAttendance(selectedDate = null, selectedTeacherId = null) {
     });
 }
 
-
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', options);
 }
 
-// Trigger for opening the Edit Attendance Modal
-$(document).on('click', '.edit-attendance', function () {
-    const studentId = $(this).data('student-id');
-    const name = $(this).data('name');
-    const attendance = $(this).data('attendance');
-    const attendanceDate = $(this).data('attendance-date');
-
-    console.log('Editing attendance for:', { studentId, name, attendance, attendanceDate });
-
-    // Highlight the row being edited
-    const rowElement = $(this).closest('tr');
-    attendanceTable.$('tr').removeClass('highlight');
-    rowElement.addClass('highlight');
-
-    // Populate modal fields
-    $('#editAttendanceModalLabel').text(`Attendance for ${name}`);
-    $('#student_id').val(studentId); // Use the correct student ID
-
-    // Set the date field, ensuring correct format
-    $('#attendance_date').val(attendanceDate ? formatDate(attendanceDate) : '');
-
-    // Set radio buttons based on attendance status
-    if (attendance === 'present') {
-        $('#edit_presentRadio').prop('checked', true);
-    } else if (attendance === 'absent') {
-        $('#edit_absentRadio').prop('checked', true);
-    } else {
-        console.warn('Undefined or invalid attendance status:', attendance);
-        $('#edit_presentRadio').prop('checked', false);
-        $('#edit_absentRadio').prop('checked', false);
-    }
-
-    // Show modal
-    $('#editAttendanceModal').modal('show');
-});
-
-$('#editAttendanceForm').on('submit', function (e) {
-    e.preventDefault();
-
-    const formData = {
-        student_id: $('#student_id').val(),
-        attendance: $('input[name="attendance"]:checked').val(),
-        attendance_date: $('#attendance_date').val() || new Date().toISOString().split('T')[0] // Default to today's date
-    };
-
-    console.log('Updating attendance for:', formData);
-
+// Attendance Printing
+function printAttendance() {
+    const selectedDate = $('#datepicker').val() ? moment($('#datepicker').val(), 'MM/DD/YYYY') : moment();
+    const selectedTeacherId = $('#filterByTeacher').val();
+    const printWindow = window.open('', '_blank');
+    
     $.ajax({
-        url: 'fetch_attendance.php', // Ensure this is the correct URL to handle the request
-        type: 'POST',
-        data: formData,
-        success: function (response) {
-            console.log('Update Response:', response);
-
-            if (response.status === 'success') {
-                // Show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Attendance Updated',
-                    text: response.message || 'The attendance record has been updated successfully.',
+        url: 'print-attendance.php',
+        type: 'GET',
+        dataType: 'json',
+        data: { 
+            date: selectedDate.format('YYYY-MM-DD'),
+            teacher_id: selectedTeacherId,
+            print: true 
+        },
+        success: function(response) {
+            if (response.status === 'success' && response.attendance) {
+                // Sort attendance records by gender and name
+                const sortedAttendance = response.attendance.sort((a, b) => {
+                    // First sort by gender (Male first)
+                    if (a.sex !== b.sex) {
+                        return a.sex === 'Male' ? -1 : 1;
+                    }
+                    // Then sort by name
+                    return a.full_name.localeCompare(b.full_name);
                 });
 
-                // Close the modal
-                $('#editAttendanceModal').modal('hide'); 
+                // Split into male and female groups
+                const maleStudents = sortedAttendance.filter(student => student.sex === 'Male');
+                const femaleStudents = sortedAttendance.filter(student => student.sex === 'Female');
 
-                // Reload the attendance records
-                loadAttendance(); 
+                let printContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>SF2 - Daily Attendance Report</title>
+                        <style>
+                            @media print {
+                                @page {
+                                    size: landscape;
+                                    margin: 0.5cm;
+                                }
+                            }
+                            
+                            body {
+                                font-family: Arial, sans-serif;
+                                line-height: 1.2;
+                                margin: 0;
+                                padding: 1cm;
+                            }
+
+                            .header {
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                margin-bottom: 1rem;
+                                gap: 1rem;
+                            }
+
+                            .logo {
+                                width: 80px;
+                                height: 80px;
+                                object-fit: contain;
+                            }
+
+                            .header-text {
+                                text-align: center;
+                            }
+
+                            .header-text h1 {
+                                margin: 0;
+                                font-size: 16px;
+                                font-weight: bold;
+                            }
+
+                            .header-text p {
+                                margin: 5px 0;
+                                font-size: 12px;
+                            }
+
+                            .form-info {
+                                display: grid;
+                                grid-template-columns: repeat(3, 1fr);
+                                gap: 1rem;
+                                margin-bottom: 1rem;
+                                font-size: 12px;
+                            }
+
+                            .attendance-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                font-size: 11px;
+                            }
+
+                            .attendance-table th,
+                            .attendance-table td {
+                                border: 1px solid black;
+                                padding: 4px;
+                                text-align: center;
+                            }
+
+                            .name-column {
+                                text-align: left !important;
+                                width: 200px;
+                            }
+
+                            .date-cell {
+                                width: 25px;
+                            }
+
+                            .summary-cell {
+                                width: 40px;
+                            }
+
+                            .remarks-cell {
+                                width: 200px;
+                            }
+
+                            .gender-header {
+                                background-color: #f3f4f6;
+                                font-weight: bold;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <img src="../assets/img/deped.png" alt="School Logo" class="logo">
+                            <div class="header-text">
+                                <h1>School Form 2 (SF2) Daily Attendance Report of Learners</h1>
+                                <p><em>(This replaces Form 1, Form 2 & STS Form 4 - Absenteeism and Dropout Profile)</em></p>
+                            </div>
+                        </div>
+
+                        <div class="form-info">
+                            <div>
+                                <strong>Name of School:</strong> ${response.school_name || 'Sewahon National High School'}
+                            </div>
+                            <div>
+                                <strong>School Year:</strong> ${response.school_year || '2023-2024'}
+                            </div>
+                            <div>
+                                <strong>Report for the Month of:</strong> ${selectedDate.format('MMMM YYYY')}
+                                <br>
+                                <strong>Grade Level:</strong> ${response.attendance[0]?.grade || ''} 
+                                <strong>Section:</strong> ${response.attendance[0]?.section || ''}
+                            </div>
+                        </div>
+
+                        <table class="attendance-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="name-column">LEARNER'S NAME<br>(Last Name, First Name, Middle Name)</th>
+                                    ${generateDateHeaders(selectedDate)}
+                                    <th colspan="2">Total for the Month</th>
+                                    <th rowspan="2" class="remarks-cell">REMARKS</th>
+                                </tr>
+                                <tr>
+                                    ${generateDateSubHeaders(selectedDate)}
+                                    <th>ABSENT</th>
+                                    <th>TARDY</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Male Students -->
+                                <tr class="gender-header">
+                                    <td colspan="${getWeekdayCount(selectedDate) + 4}">MALE</td>
+                                </tr>
+                                ${generateStudentRows(maleStudents, selectedDate)}
+
+                                <!-- Female Students -->
+                                <tr class="gender-header">
+                                    <td colspan="${getWeekdayCount(selectedDate) + 4}">FEMALE</td>
+                                </tr>
+                                ${generateStudentRows(femaleStudents, selectedDate)}
+                            </tbody>
+                        </table>
+                    </body>
+                    </html>
+                `;
+
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.onload = function() {
+                    printWindow.print();
+                    printWindow.onafterprint = function() {
+                        printWindow.close();
+                    };
+                };
             } else {
-                // Show error message if the response status is not success
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Update Failed',
-                    text: response.message || 'Could not update attendance record.',
+                    icon: 'info',
+                    title: 'No Attendance Records',
+                    text: 'No attendance records found for printing.'
                 });
+                printWindow.close();
             }
         },
-        error: function (xhr, status, error) {
-            console.error('Error updating attendance:', error);
+        error: function(xhr, status, error) {
+            console.error('Print Error:', error);
             Swal.fire({
                 icon: 'error',
-                title: 'Network Error',
-                text: 'Could not update attendance record. Check the console for details.',
+                title: 'Print Error',
+                text: 'Could not generate attendance report.'
             });
+            printWindow.close();
         }
     });
+}
+
+function getWeekdayCount(date) {
+    const daysInMonth = date.daysInMonth();
+    let weekdayCount = 0;
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+        const currentDate = moment(date).date(i);
+        const dayOfWeek = currentDate.day();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            weekdayCount++;
+        }
+    }
+    return weekdayCount;
+}
+
+function generateDateHeaders(selectedDate) {
+    const daysInMonth = selectedDate.daysInMonth();
+    let headers = '';
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+        const currentDate = moment(selectedDate).date(i);
+        const dayOfWeek = currentDate.day();
+        
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            headers += `<th colspan="1" class="date-cell">${i}</th>`;
+        }
+    }
+    return headers;
+}
+
+function generateDateSubHeaders(selectedDate) {
+    const daysInMonth = selectedDate.daysInMonth();
+    let subHeaders = '';
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+        const currentDate = moment(selectedDate).date(i);
+        const dayOfWeek = currentDate.day();
+        
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            const dayAbbrev = currentDate.format('ddd').toUpperCase();
+            subHeaders += `<th class="date-cell">${dayAbbrev[0]}</th>`;
+        }
+    }
+    return subHeaders;
+}
+
+function generateAttendanceMarks(student, selectedDate) {
+    const daysInMonth = selectedDate.daysInMonth();
+    let marks = '';
+    
+    for (let i = 1; i <= daysInMonth; i++) {
+        const currentDate = moment(selectedDate).date(i);
+        const dayOfWeek = currentDate.day();
+        
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            let mark = '';  // Default to empty
+            const dateStatus = student.attendance_dates[i];
+            
+            if (dateStatus) {
+                if (dateStatus === 'ABSENT') mark = 'A';
+                else if (dateStatus === 'LATE') mark = 'L';
+                else if (dateStatus === 'PRESENT') mark = 'P';
+            }
+            
+            marks += `<td class="date-cell">${mark}</td>`;
+        }
+    }
+    
+    return marks;
+}
+
+function generateStudentRows(students, selectedDate) {
+    let rows = '';
+    
+    students.forEach(student => {
+        const absentCount = Object.values(student.attendance_dates)
+            .filter(status => status === 'ABSENT').length;
+        const tardyCount = Object.values(student.attendance_dates)
+            .filter(status => status === 'LATE').length;
+        
+        rows += `
+            <tr>
+                <td class="name-column">${student.full_name}</td>
+                ${generateAttendanceMarks(student, selectedDate)}
+                <td class="summary-cell">${absentCount}</td>
+                <td class="summary-cell">${tardyCount}</td>
+                <td class="remarks-cell"></td>
+            </tr>
+        `;
+    });
+    
+    return rows;
+}
+
+$(document).on('click', '.btn-primary', function() {
+    printAttendance();
 });

@@ -42,3 +42,40 @@
     color: #dc3545 !important;
     font-weight: 600;
 }
+
+/* Select2 custom styles */
+.select2--small .select2-selection {
+    min-height: 36px;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+.select2--small .select2-selection--multiple {
+    padding: 3px 6px;
+}
+
+.select2--small .select2-selection__choice {
+    background-color: #007bff;
+    border: none;
+    color: white;
+    padding: 2px 8px;
+    margin: 2px;
+    border-radius: 3px;
+}
+
+.select2--small .select2-selection__choice__remove {
+    color: white;
+    margin-right: 5px;
+}
+
+.select2--small .select2-search__field {
+    margin-top: 3px;
+}
+
+.select2-container--bootstrap4 .select2-results__option--highlighted[aria-selected] {
+    background-color: #007bff;
+}
+
+.select2-container--bootstrap4 .select2-results__option[aria-selected=true] {
+    background-color: #e9ecef;
+}

@@ -62,8 +62,9 @@
                                 <i class="ion ion-stats-bars text-success"></i>
                             </div>
                             <div class="inner">
-                                <h3>53<sup style="font-size: 0.6em">%</sup></h3>
-                                <p>Academic Performance</p>
+                                <!-- <h3>53<sup style="font-size: 0.6em">%</sup></h3> -->
+                                <h3>10</h3>
+                                <p>Total Subjects</p>
                             </div>
                         </div>
                     </div>
@@ -108,7 +109,7 @@
                                             <div class="card-header border-0">
                                                 <div class="d-flex justify-content-between">
                                                     <h3 class="card-title">Top 10 Performing Students</h3>
-                                                    <a href="performance.php" class="text-primary">View Report</a>
+                                                    <a href="tc_ranking.php" class="text-primary">View Report</a>
                                                 </div>
                                             </div>
                                             <div class="card-body">
@@ -143,12 +144,16 @@
                                         <div class="card card-primary card-outline">
                                             <div class="card-header border-0">
                                                 <div class="d-flex justify-content-between">
-                                                    <h3 class="card-title">Perfect Attendance Report</h3>
-                                                    <a href="javascript:void(0);" class="text-primary">View Report</a>
+                                                    <h3 class="card-title">Attendance Report</h3>
+                                                    <a href="attendance.php" class="text-primary">View Report</a>
                                                 </div>
                                             </div>
-                                            <div class="card-body">
-                                                
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="card-body">
+                                                        <canvas id="studentAttendanceChart" style="min-height: 400px;"></canvas>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -164,7 +169,79 @@
         </div>
 
         <?php include('../components/scripts.php');?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                fetch('students_attendance_graph.php')
+                .then(response => response.json())
+                .then(stats => {
+                    console.log('Received stats:', stats);
+                    
+                    if (stats.error) {
+                        console.error('Error from server:', stats.error);
+                        return;
+                    }
+
+                    const ctx = document.getElementById('studentAttendanceChart').getContext('2d');
+                    
+                    const data = {
+                        labels: ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10'],
+                        datasets: [
+                            {
+                                label: 'Present',
+                                backgroundColor: '#28a745',
+                                data: stats.present || []
+                            },
+                            {
+                                label: 'Absent',
+                                backgroundColor: '#dc3545',
+                                data: stats.absent || []
+                            },
+                            {
+                                label: 'Late',
+                                backgroundColor: '#ffc107',
+                                data: stats.late || []
+                            }
+                        ]
+                    };
+
+                    const config = {
+                        type: 'bar',
+                        data: data,
+                        options: {
+                            responsive: true,
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Grade Levels'
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Number of Students'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Student Attendance Distribution by Grade Level'
+                                },
+                                legend: {
+                                    position: 'top'
+                                }
+                            },
+                            barPercentage: 0.8,
+                            categoryPercentage: 0.9
+                        }
+                    };
+
+                    new Chart(ctx, config);
+                })
+                .catch(error => console.error('Error loading attendance data:', error));
+            });
+        </script>
     </body>
-
-
 </html>

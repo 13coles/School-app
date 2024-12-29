@@ -18,20 +18,6 @@
         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
             <div class="dropdown-header">
                 <div class="d-flex">
-                    <div class="flex-shrink-0">
-                        <!-- Dynamically load user's profile image -->
-                        <?php 
-                          $image_path = ($_SESSION['user_role'] === 'student') 
-                              ? './assets/images/users/' 
-                              : '../assets/images/users/';
-                          $default_image = 'default-user.jpg'; // Fallback image if no user-specific image
-                          $user_image = $_SESSION['profile_image'] ?? $default_image;
-                        ?>
-                        <img src="<?= htmlspecialchars($image_path . $user_image) ?>" 
-                             class="img-circle elevation-2" 
-                             alt="User Image" 
-                             style="width: 40px; height: 40px;">
-                    </div>
                     <div class="flex-grow-1 ml-3">
                         <!-- Current user's full name -->
                         <h6 class="mb-0"><?= htmlspecialchars($_SESSION['full_name']); ?></h6>

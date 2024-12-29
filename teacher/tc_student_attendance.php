@@ -15,6 +15,8 @@
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
             <link rel="stylesheet" href="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+            <!-- Bootstrap Datepicker CSS -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
             <link rel="stylesheet" href="../assets//css/students_modal.css">
     </head>
     <body class="hold-transition sidebar-mini">
@@ -52,6 +54,20 @@
                 <div class="content">
                     <div class="container-fluid">
                         <div class="card">
+                            <div class="card-header">
+                                <div class="row mb-2 d-flex justify-content-between">
+                                    <!-- Filter -->
+                                    <div class="col-md-6 inline-flex align-items-center">
+                                        <label for="filterByDate">Filter by Date</label>
+                                        <input type="text" id="datepicker" class="form-control" placeholder="Select a date">
+                                    </div>
+
+                                    <!-- Print button -->
+                                    <div class="row mr-3 d-flex items-center justify-end">
+                                        <button class="btn btn-primary text-sm" id="print">Print</button>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="card-body">
                                 <table id="attendanceTable" class="table table-bordered table-striped">
                                     <thead>
@@ -108,6 +124,12 @@
                                                     <i class="fas fa-times-circle mr-1"></i>Absent
                                                 </label>
                                             </div>
+                                            <div class="custom-control custom-radio custom-control-inline">
+                                                <input type="radio" id="edit_lateRadio" name="attendance" class="custom-control-input" value="late">
+                                                <label class="custom-control-label text-warning" for="edit_lateRadio">
+                                                    <i class="fas fa-times-circle mr-1"></i>Late
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -139,6 +161,8 @@
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
         <script src="../assets/js/tc_student_attendance.js"></script>
     </body>
 </html>
