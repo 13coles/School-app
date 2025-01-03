@@ -24,6 +24,13 @@
           </li>
 
           <li class="nav-item">
+            <a href="../teacher/class_records.php" class="nav-link modern-nav-link">
+              <i class="nav-icon fas fa-user-graduate"></i>
+              <p>Class Record</p>
+            </a>
+          </li>
+
+          <li class="nav-item">
             <a href="../teacher/student_record.php" class="nav-link modern-nav-link">
               <i class="nav-icon fas fa-user-graduate"></i>
               <p>Students</p>
@@ -42,7 +49,7 @@
               <li class="nav-item">
                 <a href="../teacher/tc_ranking.php" class="nav-link modern-nav-link">
                   <i class="fas fa-trophy mr-2 ml-4"></i>
-                  <p>Performance</p>
+                  <p>Rankings</p>
                 </a>
               </li>
               <li class="nav-item">

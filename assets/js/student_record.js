@@ -202,9 +202,6 @@ $(document).ready(function() {
                             <a class="dropdown-item view-grades" href="../teacher/tc_view_grade.php?student_id=${row.id}" style="cursor:default;">
                                 <i class="fas fa-book-open text-info mr-2"></i> View Card
                             </a>
-                            <a class="dropdown-item view-grades" href="../teacher/tc_add_grade.php?student_id=${row.id}" style="cursor:default;">
-                                <i class="fas fa-pencil-alt text-info mr-2"></i> Add Grade
-                            </a>
                             <a class="dropdown-item view-attendance" style="cursor:default;">
                                 <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
                             </a>
