@@ -7,11 +7,9 @@ checkAccess(['teacher']);
 header('Content-Type: application/json');
 
 try {
-    // Detailed logging of session and POST data
     error_log("Session Data: " . json_encode($_SESSION));
     error_log("POST Data: " . json_encode($_POST));
 
-    // More robust access check
     if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'teacher') {
         throw new Exception("Unauthorized access: Not a teacher");
     }
@@ -24,9 +22,8 @@ try {
     $teacherId = $_SESSION['teacher_id'];
     $studentId = $_POST['student_id'] ?? null;
     $attendanceStatus = $_POST['attendance'] ?? null;
-    $attendanceDate = date('Y-m-d'); // Default to current date
+    $attendanceDate = date('Y-m-d'); 
 
-    // More detailed input validation
     if (empty($studentId)) {
         throw new Exception("Student ID is required");
     }
@@ -42,7 +39,6 @@ try {
         throw new Exception("Student not found");
     }
 
-    // Start a database transaction
     $pdo->beginTransaction();
 
     // 1. Insert/Update Attendance Record
@@ -70,12 +66,10 @@ try {
         ':teacher_id' => $teacherId
     ]);
 
-    // Check if the execution was successful
     if (!$attendanceResult) {
         throw new Exception("Failed to record attendance");
     }
 
-    // Commit the transaction
     $pdo->commit();
 
     // Prepare response
@@ -98,11 +92,9 @@ try {
         $pdo->rollBack();
     }
 
-    // Log the detailed error
     error_log("Attendance Error: " . $e->getMessage());
     error_log("Trace: " . $e->getTraceAsString());
 
-    // Send error response
     http_response_code(400);
     echo json_encode([
         'status' => 'error',

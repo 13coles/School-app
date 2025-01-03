@@ -4,7 +4,6 @@ require_once '../utils/db_connection.php';
 header('Content-Type: application/json');
 
 try {
-    // Fetch all teachers with their details
     $query = "
         SELECT 
             id, 

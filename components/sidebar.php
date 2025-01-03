@@ -43,6 +43,12 @@
               <p>Teachers</p>
             </a>
           </li>
+          <li class="nav-item">
+            <a href="../admin/teacher_log.php" class="nav-link modern-nav-link">
+              <i class="nav-icon fas fa-list-alt"></i>
+              <p>Teacher Logs</p>
+            </a>
+          </li>
           
 
           <li class="nav-header">ADDITIONAL</li>
@@ -66,7 +72,14 @@
               <li class="nav-item">
                 <a href="../admin/attendance.php" class="nav-link modern-nav-link">
                   <i class="fas fa-calendar-check mr-2"></i>
-                  <p>Attendance</p>
+                  <p> Attendance</p>
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a href="../admin/performance_logs.php" class="nav-link modern-nav-link">
+                  <i class="fas fa-tasks mr-2"></i>
+                  <p>Activity Logs</p>
                 </a>
               </li>
             </ul>

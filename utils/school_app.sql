@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 17, 2024 at 01:08 AM
+-- Generation Time: Dec 29, 2024 at 01:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,6 +24,26 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `activity_logs`
+--
+
+CREATE TABLE `activity_logs` (
+  `id` int(11) NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `event` varchar(255) NOT NULL,
+  `date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `activity_logs`
+--
+
+INSERT INTO `activity_logs` (`id`, `user_id`, `event`, `date`) VALUES
+(1, 2, 'User logged in', '2024-12-29 11:53:50');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `attendance`
 --
 
@@ -31,7 +51,7 @@ CREATE TABLE `attendance` (
   `id` int(11) NOT NULL,
   `student_id` int(10) UNSIGNED NOT NULL,
   `attendance_date` date NOT NULL,
-  `attendance` enum('present','absent') NOT NULL,
+  `attendance` enum('present','absent','late') NOT NULL,
   `teacher_id` int(11) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -40,9 +60,10 @@ CREATE TABLE `attendance` (
 --
 
 INSERT INTO `attendance` (`id`, `student_id`, `attendance_date`, `attendance`, `teacher_id`) VALUES
-(6, 15, '2024-12-16', 'absent', NULL),
-(8, 16, '2024-12-16', 'present', NULL),
-(9, 17, '2024-12-16', 'absent', NULL);
+(13, 15, '2024-12-23', 'present', 6),
+(14, 16, '2024-12-23', 'absent', 6),
+(15, 15, '2024-12-27', 'present', 6),
+(16, 16, '2024-12-27', 'late', 6);
 
 -- --------------------------------------------------------
 
@@ -304,6 +325,28 @@ CREATE TABLE `teacher_archive` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `teacher_logs`
+--
+
+CREATE TABLE `teacher_logs` (
+  `id` int(11) NOT NULL,
+  `teacher_id` int(10) UNSIGNED NOT NULL,
+  `teacher_name` varchar(255) NOT NULL,
+  `time_in` datetime NOT NULL,
+  `time_out` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `teacher_logs`
+--
+
+INSERT INTO `teacher_logs` (`id`, `teacher_id`, `teacher_name`, `time_in`, `time_out`) VALUES
+(2, 6, 'Penfiel, Lovely Middle', '2024-12-22 08:34:00', '2024-12-22 16:50:14'),
+(6, 6, 'Penfiel, Lovely Middle', '2024-12-23 01:19:00', '2024-12-22 17:19:44');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `teacher_student_assignments`
 --
 
@@ -361,6 +404,13 @@ INSERT INTO `users` (`id`, `username`, `password`, `user_role`, `full_name`, `em
 --
 
 --
+-- Indexes for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `attendance`
 --
 ALTER TABLE `attendance`
@@ -412,6 +462,13 @@ ALTER TABLE `teachers`
   ADD KEY `fk_student` (`student_id`);
 
 --
+-- Indexes for table `teacher_logs`
+--
+ALTER TABLE `teacher_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `teacher_id` (`teacher_id`);
+
+--
 -- Indexes for table `teacher_student_assignments`
 --
 ALTER TABLE `teacher_student_assignments`
@@ -432,10 +489,16 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `attendance`
 --
 ALTER TABLE `attendance`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `grades`
@@ -468,6 +531,12 @@ ALTER TABLE `teachers`
   MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+-- AUTO_INCREMENT for table `teacher_logs`
+--
+ALTER TABLE `teacher_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- AUTO_INCREMENT for table `teacher_student_assignments`
 --
 ALTER TABLE `teacher_student_assignments`
@@ -482,6 +551,12 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `activity_logs`
+--
+ALTER TABLE `activity_logs`
+  ADD CONSTRAINT `activity_logs_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `attendance`
@@ -518,6 +593,12 @@ ALTER TABLE `teachers`
   ADD CONSTRAINT `fk_student` FOREIGN KEY (`student_id`) REFERENCES `students` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
+-- Constraints for table `teacher_logs`
+--
+ALTER TABLE `teacher_logs`
+  ADD CONSTRAINT `teacher_logs_ibfk_1` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `teacher_student_assignments`
 --
 ALTER TABLE `teacher_student_assignments`
@@ -533,4 +614,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-

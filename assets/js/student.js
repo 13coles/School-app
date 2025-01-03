@@ -216,12 +216,12 @@ $(document).ready(function() {
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="actionDropdown${student.id}">
                                     <a class="dropdown-item view-student" data-id="${student.id}" style="cursor:default;">
-                                        <i class="fas fa-eye text-info mr-2"></i> View Details
+                                        <i class="fas fa-eye text-primary mr-2"></i> View Details
                                     </a>
                                      <a class="dropdown-item view-grades" href="../admin/view_grades.php?student_id=${student.id}" style="cursor:default;">
-                                        <i class="fas fa-book-open text-info mr-2"></i> View Card
+                                        <i class="fas fa-book-open text-warning mr-2"></i> View Card
                                     </a>
-                                  
+
                                     <a class="dropdown-item edit-student" data-id="${student.id}" data-toggle="modal" data-target="#editStudentModal" style="cursor:default;">
                                         <i class="fas fa-edit text-success mr-2"></i>Edit
                                     </a>

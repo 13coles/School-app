@@ -180,7 +180,7 @@ $(document).ready(function() {
             gradeSelector = '#grade',
             sectionSelector = '#section',
             studentsSelector = '#assigned_students',
-            isEditModal = false
+            preselectedStudents = []
         } = options;
     
         const grade = $(gradeSelector).val();
@@ -197,115 +197,78 @@ $(document).ready(function() {
                 },
                 dataType: 'json',
                 success: function(response) {
-                    console.log('Full response:', response); 
-    
-                    // Clear existing options
                     $studentsSelect.empty();
     
                     if (response && response.status === 'success') {
                         if (response.students && response.students.length > 0) {
-                            // Add default prompt for non-multiple select
-                            if (!isEditModal) {
-                                $studentsSelect.append('<option value="">Select Students</option>');
-                            }
+                            // Always enable multiple selection for both add and edit
+                            $studentsSelect.attr('multiple', 'multiple');
     
                             // Populate students
                             response.students.forEach(student => {
-                                $studentsSelect.append(
-                                    `<option value="${student.id}">
-                                        ${student.full_name} (LRN: ${student.lrn})
-                                    </option>`
+                                const option = new Option(
+                                    `${student.full_name} (LRN: ${student.lrn})`,
+                                    student.id,
+                                    false,
+                                    preselectedStudents.includes(student.id)
                                 );
+                                $studentsSelect.append(option);
                             });
     
-                            // Initialize or reinitialize Select2
+                            // Initialize Select2 with consistent styling
                             if ($.fn.select2) {
                                 $studentsSelect.select2({
                                     placeholder: "Select students",
                                     allowClear: true,
                                     width: '100%',
-                                    multiple: isEditModal  // Enable multiple selection for edit modal
+                                    multiple: true,
+                                    theme: 'bootstrap4',
+                                    closeOnSelect: false,
+                                    selectionCssClass: 'select2--small',
+                                    dropdownCssClass: 'select2--small',
+                                    templateResult: formatStudent,
+                                    templateSelection: formatStudentSelection
                                 });
-    
-                                // Trigger the change event to update the select2 display
-                                $studentsSelect.trigger('change');
-                            } else {
-                                // Fallback for browsers without Select2
-                                if (isEditModal) {
-                                    $studentsSelect.attr('multiple', 'multiple');
-                                }
                             }
     
-                            // Show student count
+                            // Show student count as toast
                             Swal.fire({
                                 icon: 'info',
                                 title: 'Students Found',
-                                text: `${response.students.length} students available for selection`,
+                                text: `${response.students.length} students available`,
                                 toast: true,
                                 position: 'top-end',
                                 showConfirmButton: false,
                                 timer: 2000
                             });
                         } else {
-                            // No students found
+                            // No students case
                             $studentsSelect.append('<option value="">No students found</option>');
-                            
-                            Swal.fire({
-                                icon: 'info',
-                                title: 'No Students',
-                                text: 'No students found for this grade and section',
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 2000
-                            });
                         }
-                    } else {
-                        // Error in response
-                        console.error('Invalid response:', response);
-                        
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Fetch Error',
-                            text: response.message || 'Could not fetch students',
-                            footer: response.error_details ? `Error Details: ${response.error_details}` : ''
-                        });
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error('Full AJAX Error:', {
-                        status: status,
-                        error: error,
-                        responseText: xhr.responseText
-                    });
-    
-                    let errorMessage = 'An unexpected error occurred';
-                    let errorDetails = '';
-                    
-                    try {
-                        const errorResponse = JSON.parse(xhr.responseText);
-                        errorMessage = errorResponse.message || errorMessage;
-                        errorDetails = errorResponse.error_details || '';
-                    } catch (e) {
-                        errorMessage = xhr.statusText || errorMessage;
-                    }
-    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Fetch Error',
-                        text: errorMessage,
-                        footer: errorDetails ? `Error Details: ${errorDetails}` : '',
-                        showConfirmButton: true
-                    });
+                    console.error('Students fetch error:', error);
+                    $studentsSelect.empty().append('<option value="">Error loading students</option>');
                 }
             });
         } else {
             $studentsSelect.empty();
-            
             if ($.fn.select2) {
                 $studentsSelect.select2('destroy');
             }
         }
+    }
+    
+    // Format functions for Select2
+    function formatStudent(student) {
+        if (!student.id) return student.text;
+        return $(`<span><i class="fas fa-user mr-2"></i>${student.text}</span>`);
+    }
+    
+    function formatStudentSelection(student) {
+        if (!student.id) return student.text;
+        return $(`<span><i class="fas fa-check-circle mr-2"></i>${student.text}</span>`);
     }
     
     $('#grade, #section').on('change', function() {
@@ -321,12 +284,10 @@ $(document).ready(function() {
         fetchStudents({
             gradeSelector: '#edit_grade',
             sectionSelector: '#edit_section',
-            studentsSelector: '#assigned_students', 
+            studentsSelector: '#edit_assigned_students', 
             isEditModal: true
         });
     });
-    
-    
 
     // Load Teachers Function
     function loadTeachers() {
