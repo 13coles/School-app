@@ -25,15 +25,13 @@
         $stmt->execute(['student_id' => $student_id]);
         $subjects = $stmt->fetchAll();
         
-        // Fetch all grades for the student
+        // Fetch all grades and status for the student
         $stmt = $pdo->prepare("
             SELECT * FROM student_card WHERE student_id = :student_id
         ");
         $stmt->execute(['student_id' => $student_id]);
         $student_cards = $stmt->fetchAll();
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -95,36 +93,38 @@
                         <?php include '../utils/sessions.php' ?>
                         <div class="card">
                             <div class="card-header">
-                            <a href="tc_printGrade.php?student_id=<?php echo $student_id; ?>" class="btn btn-secondary float-right">
+                            <a href="tc_printGrade.php?student_id=<?php echo $student_id; ?>" class="btn btn-primary float-right">
                                 <i class="fas fa-print mr-1"></i> Print
                             </a>
 
                             </div>
                             <div class="card-body">
-                           
                             <table id="gradesTable" class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th rowspan="2" class="align-middle bg-primary text-center">Subjects</th>
-                                            <th colspan="8" class="text-center bg-primary">
-                                                <?php echo $student['full_name'] . " - Grade: " . $student['grade'] . " Section: " . $student['section']; ?>
-                                            </th>
-
-                                            <th rowspan="2" class="align-middle bg-primary text-center">Final Grade</th>
-                                        </tr>
-                                        <tr>
-                                            <th colspan="2" class="text-center bg-warning">1st Quarter</th>
-                                            <th colspan="2" class="text-center bg-warning">2nd Quarter</th>
-                                            <th colspan="2" class="text-center bg-warning">3rd Quarter</th>
-                                            <th colspan="2" class="text-center bg-warning">4th Quarter</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                                <thead>
+                                    <tr>
+                                        <th colspan="12"><strong>Student Name: </strong><?php echo $student['full_name'] . " - Grade: " . $student['grade'] . " Section: " . $student['section']; ?></th>
+                                    </tr>
+                                    <tr>
+                                        <th rowspan="2" class="align-middle  text-center">Learning Areas</th>
+                                        <th colspan="8" class="text-center ">
+                                            Quarter's
+                                        </th>
+                                        <th rowspan="2" class="align-middle  text-center">Final Grade</th>
+                                        <th rowspan="2" class="align-middle  text-center">Remarks</th>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="2" class="text-center">1st Quarter</th>
+                                        <th colspan="2" class="text-center">2nd Quarter</th>
+                                        <th colspan="2" class="text-center">3rd Quarter</th>
+                                        <th colspan="2" class="text-center">4th Quarter</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                     <?php
                                         $total_final_grades = 0;
                                         $subject_count = 0;
                                         foreach ($subjects as $subject):
-                                            // Get the grades for this subject
+                                            // Get the grades and status for this subject
                                             $grades = array_filter($student_cards, function($card) use ($subject) {
                                                 return $card['subject_id'] == $subject['subject_id'];
                                             });
@@ -133,17 +133,17 @@
                                     ?>
                                         <tr>
                                             <td><?php echo $subject['subject_name']; ?></td>
-                                            <td colspan="2" class="p-1">
-                                                <input type="text" class="form-control" value="<?php echo $grade["1st_quarter"] ?? ''; ?>" readonly>
+                                            <td colspan="2" class="p-1 text-center">
+                                                <?php echo $grade["1st_quarter"] ?? ''; ?>
                                             </td>
-                                            <td colspan="2" class="p-1">
-                                                <input type="text" class="form-control" value="<?php echo $grade["2nd_quarter"] ?? ''; ?>" readonly>
+                                            <td colspan="2" class="p-1 text-center">
+                                                <?php echo $grade["2nd_quarter"] ?? ''; ?>
                                             </td>
-                                            <td colspan="2" class="p-1">
-                                                <input type="text" class="form-control" value="<?php echo $grade["3rd_quarter"] ?? ''; ?>" readonly>
+                                            <td colspan="2" class="p-1 text-center">
+                                                <?php echo $grade["3rd_quarter"] ?? ''; ?>
                                             </td>
-                                            <td colspan="2" class="p-1">
-                                                <input type="text" class="form-control" value="<?php echo $grade["4th_quarter"] ?? ''; ?>" readonly>
+                                            <td colspan="2" class="p-1 text-center">
+                                                <?php echo $grade["4th_quarter"] ?? ''; ?>
                                             </td>
 
                                             <?php
@@ -157,8 +157,11 @@
                                                 $total_final_grades += $final_grade_rounded;
                                                 $subject_count++;
                                             ?>
-                                            <td colspan="2" class="p-1">
-                                                <input type="text" class="form-control" value="<?php echo $final_grade_rounded; ?>" readonly>
+                                            <td class="p-1 text-center">
+                                                <?php echo $final_grade_rounded; ?>
+                                            </td>
+                                            <td class="p-1 text-center">
+                                                <?php echo $grade['status'] ?? ''; ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -173,13 +176,14 @@
                                         }
                                     ?>
                                     <tr>
-                                        <td colspan="8" class="text-right bg-primary"><strong>General Average</strong></td>
-                                        <td colspan="2" class="p-1 bg-primary">
-                                            <input type="text" class="form-control" value="<?php echo $general_avg_rounded; ?>" readonly>
+                                        <td colspan="8" class="text-right "><strong>General Average:</strong></td>
+                                        <td colspan="3" class="p-1  text-center">
+                                            <?php echo $general_avg_rounded; ?>
                                         </td>
                                     </tr>
-                                    </tbody>
-                                </table>
+                                </tbody>
+                            </table>
+
                             <?php
                         } else {
                             echo "Student ID not provided.";
@@ -189,13 +193,14 @@
                         </div>
                     </div>
                 </div>
+                <!-- main end -->
             </div>
             <!-- Footer component -->
             <?php include('../components/footer.php');?>
         </div>
         <!-- Scripts component -->
         <?php include('../components/scripts.php');?>
-        
+
         <!-- DataTables & Plugins -->
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables/jquery.dataTables.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
@@ -203,6 +208,5 @@
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
         <script src="../vendor/almasaeed2010/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-  
     </body>
 </html>

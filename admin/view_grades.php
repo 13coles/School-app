@@ -14,6 +14,8 @@
         if (!$student) {
             die("Student not found.");
         }
+
+        // Fetch the subjects for the student
         $stmt = $pdo->prepare("
             SELECT s.subject_name, ss.subject_id
             FROM student_subject ss
@@ -22,12 +24,13 @@
         ");
         $stmt->execute(['student_id' => $student_id]);
         $subjects = $stmt->fetchAll();
+        
+        // Fetch all grades for the student
         $stmt = $pdo->prepare("
             SELECT * FROM student_card WHERE student_id = :student_id
         ");
         $stmt->execute(['student_id' => $student_id]);
-        $student_card = $stmt->fetch();
-    
+        $student_cards = $stmt->fetchAll();
 ?>
 
 <!DOCTYPE html>
@@ -66,8 +69,8 @@
             <!-- Sidebar component -->
             <?php include('../components/sidebar.php');?>
 
-             <!-- Content Wrapper -->
-             <div class="content-wrapper">
+              <!-- Content Wrapper -->
+              <div class="content-wrapper">
                 <!-- Content Header -->
                 <div class="content-header">
                     <div class="container-fluid">
@@ -117,65 +120,65 @@
                                     </thead>
                                     <tbody>
                                     <?php
-                                       
                                         $total_final_grades = 0;
                                         $subject_count = 0;
-                                        ?>
+                                        foreach ($subjects as $subject):
+                                            // Get the grades for this subject
+                                            $grades = array_filter($student_cards, function($card) use ($subject) {
+                                                return $card['subject_id'] == $subject['subject_id'];
+                                            });
 
-                                        <?php foreach ($subjects as $subject): ?>
-                                            <tr>
-                                                <td><?php echo $subject['subject_name']; ?></td>
-                                                <td colspan="2" class="p-1">
-                                                    <input type="text" class="form-control" value="<?php echo $student_card["1st_quarter"] ?? ''; ?>" readonly>
-                                                </td>
-                                                <td colspan="2" class="p-1">
-                                                    <input type="text" class="form-control" value="<?php echo $student_card["2nd_quarter"] ?? ''; ?>" readonly>
-                                                </td>
-                                                <td colspan="2" class="p-1">
-                                                    <input type="text" class="form-control" value="<?php echo $student_card["3rd_quarter"] ?? ''; ?>" readonly>
-                                                </td>
-                                                <td colspan="2" class="p-1">
-                                                    <input type="text" class="form-control" value="<?php echo $student_card["4th_quarter"] ?? ''; ?>" readonly>
-                                                </td>
-
-                                                <?php 
-                                                    // Calculate the final grade for this subject
-                                                    $first_quarter = $student_card["1st_quarter"] ?? 0;
-                                                    $second_quarter = $student_card["2nd_quarter"] ?? 0;
-                                                    $third_quarter = $student_card["3rd_quarter"] ?? 0;
-                                                    $fourth_quarter = $student_card["4th_quarter"] ?? 0;
-                                                    $final_grade = ($first_quarter + $second_quarter + $third_quarter + $fourth_quarter) / 4;
-                                                    $final_grade_rounded = round($final_grade);
-
-                                                    // Add to total final grades and count subjects for general average
-                                                    $total_final_grades += $final_grade_rounded;
-                                                    $subject_count++;
-                                                ?>
-                                                <td colspan="2" class="p-1">
-                                                    <input type="text" class="form-control" value="<?php echo $final_grade_rounded; ?>" readonly>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-
-                                        <?php 
-                                            // Calculate the general average
-                                            if ($subject_count > 0) {
-                                                $general_avg = $total_final_grades / $subject_count;
-                                                $general_avg_rounded = round($general_avg);
-                                            } else {
-                                                $general_avg_rounded = 0; 
-                                            }
-                                        ?>
+                                            $grade = reset($grades); // Take the first (and only) grade for the subject
+                                    ?>
                                         <tr>
-                                            <td colspan="8" class="text-right bg-primary"><strong>General Average</strong></td>
-                                            <td colspan="2" class="p-1 bg-primary">
-                                                <input type="text" class="form-control" value="<?php echo $general_avg_rounded; ?>" readonly>
+                                            <td><?php echo $subject['subject_name']; ?></td>
+                                            <td colspan="2" class="p-1">
+                                                <input type="text" class="form-control" value="<?php echo $grade["1st_quarter"] ?? ''; ?>" readonly>
+                                            </td>
+                                            <td colspan="2" class="p-1">
+                                                <input type="text" class="form-control" value="<?php echo $grade["2nd_quarter"] ?? ''; ?>" readonly>
+                                            </td>
+                                            <td colspan="2" class="p-1">
+                                                <input type="text" class="form-control" value="<?php echo $grade["3rd_quarter"] ?? ''; ?>" readonly>
+                                            </td>
+                                            <td colspan="2" class="p-1">
+                                                <input type="text" class="form-control" value="<?php echo $grade["4th_quarter"] ?? ''; ?>" readonly>
+                                            </td>
+
+                                            <?php
+                                                $first_quarter = $grade["1st_quarter"] ?? 0;
+                                                $second_quarter = $grade["2nd_quarter"] ?? 0;
+                                                $third_quarter = $grade["3rd_quarter"] ?? 0;
+                                                $fourth_quarter = $grade["4th_quarter"] ?? 0;
+                                                $final_grade = ($first_quarter + $second_quarter + $third_quarter + $fourth_quarter) / 4;
+                                                $final_grade_rounded = round($final_grade);
+
+                                                $total_final_grades += $final_grade_rounded;
+                                                $subject_count++;
+                                            ?>
+                                            <td colspan="2" class="p-1">
+                                                <input type="text" class="form-control" value="<?php echo $final_grade_rounded; ?>" readonly>
                                             </td>
                                         </tr>
+                                    <?php endforeach; ?>
 
+                                    <?php
+                                        // Calculate the general average
+                                        if ($subject_count > 0) {
+                                            $general_avg = $total_final_grades / $subject_count;
+                                            $general_avg_rounded = round($general_avg);
+                                        } else {
+                                            $general_avg_rounded = 0;
+                                        }
+                                    ?>
+                                    <tr>
+                                        <td colspan="8" class="text-right bg-primary"><strong>General Average</strong></td>
+                                        <td colspan="2" class="p-1 bg-primary">
+                                            <input type="text" class="form-control" value="<?php echo $general_avg_rounded; ?>" readonly>
+                                        </td>
+                                    </tr>
                                     </tbody>
                                 </table>
-
                             <?php
                         } else {
                             echo "Student ID not provided.";

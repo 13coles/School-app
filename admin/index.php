@@ -40,6 +40,8 @@
     $currentMonth = date('n'); 
     $currentYear = date('Y'); 
     $overallAttendancePercentage = calculateOverallAttendancePercentage($currentMonth, $currentYear);
+
+
 ?>
 
 <!-- Dashboard page -->
@@ -185,12 +187,14 @@
                                                     <a href="attendance.php" class="text-primary">View Report</a>
                                                 </div>
                                             </div>
+
                                             <div class="row">
                                                 <div class="col-12">
                                                     <div class="card-body">
                                                         <canvas id="attendanceChart" style="min-height: 400px;"></canvas>
                                                     </div>
                                                 </div>
+
                                             </div>
                                         </div>
                                     </div>
