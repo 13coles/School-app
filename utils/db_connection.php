@@ -1,6 +1,6 @@
 <?php
     $host = 'localhost';
-    $dbname = 'school_app';
+    $dbname = 'jasper_db';
     $username = 'root';
     $password = '';
 

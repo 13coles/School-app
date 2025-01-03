@@ -1,48 +1,60 @@
 <?php 
-    session_start();
+session_start();
 
-    require_once("../utils/db_connection.php");
-    require_once('../utils/access_control.php');
-    
-    checkAccess(['admin']);
+require_once("../utils/db_connection.php");
+require_once('../utils/access_control.php');
 
-    function calculateOverallAttendancePercentage($month, $year) {
-        global $pdo;
-    
-        $query = $pdo->prepare("
-            SELECT 
-                student_id, 
-                COUNT(CASE WHEN attendance = 'present' THEN 1 END) AS days_present,
-                COUNT(*) AS total_days
-            FROM attendance
-            WHERE MONTH(attendance_date) = :month AND YEAR(attendance_date) = :year
-            GROUP BY student_id
-        ");
-    
+checkAccess(['admin']);
+
+function calculateOverallAttendancePercentage($month, $year) {
+    global $pdo;
+    if (!$pdo) {
+        throw new Exception('Database connection failed.');
+    }
+
+    $query = $pdo->prepare("
+        SELECT 
+            student_id, 
+            COUNT(CASE WHEN attendance = 'present' THEN 1 END) AS days_present,
+            COUNT(*) AS total_days
+        FROM attendance
+        WHERE MONTH(attendance_date) = :month AND YEAR(attendance_date) = :year
+        GROUP BY student_id
+    ");
+
+    try {
         $query->execute([':month' => $month, ':year' => $year]);
         $attendanceRecords = $query->fetchAll(PDO::FETCH_ASSOC);
-    
-        $totalDaysPresent = 0;
-        $totalSchoolDays = 0;
-    
-        foreach ($attendanceRecords as $record) {
-            $totalDaysPresent += $record['days_present'];
-            $totalSchoolDays += $record['total_days'];
-        }
-    
-        if ($totalSchoolDays > 0) {
-            return round(($totalDaysPresent / $totalSchoolDays) * 100, 2); 
-        } else {
-            return 0; // No school days
-        }
+    } catch (PDOException $e) {
+        die("Error executing query: " . $e->getMessage());
     }
-    
-    $currentMonth = date('n'); 
-    $currentYear = date('Y'); 
-    $overallAttendancePercentage = calculateOverallAttendancePercentage($currentMonth, $currentYear);
 
+    $totalDaysPresent = 0;
+    $totalSchoolDays = 0;
+
+    // Iterate through each attendance record to calculate totals
+    foreach ($attendanceRecords as $record) {
+        $totalDaysPresent += $record['days_present'];
+        $totalSchoolDays += $record['total_days'];
+    }
+
+    // Calculate the overall attendance percentage
+    if ($totalSchoolDays > 0) {
+        return round(($totalDaysPresent / $totalSchoolDays) * 100, 2); 
+    } else {
+        return 0; // No school days available
+    }
+}
+
+// Get the current month and year
+$currentMonth = date('n'); 
+$currentYear = date('Y'); 
+
+$overallAttendancePercentage = calculateOverallAttendancePercentage($currentMonth, $currentYear);
+echo "Overall Attendance Percentage for {$currentMonth}/{$currentYear}: {$overallAttendancePercentage}%";
 
 ?>
+
 
 <!-- Dashboard page -->
 <!DOCTYPE html>

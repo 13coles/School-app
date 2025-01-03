@@ -206,30 +206,9 @@ $(document).ready(function() {
                                 <input type="radio" class="form-check-input" name="attendance_${row.id}" value="LATE" data-student-id="${row.id}">
                                 <label class="form-check-label">L</label>
                             </div>
+                        </div>`;
 
-                    return `
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                            <i class="fas fa-ellipsis-v"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item view-student" data-id="${row.id}">
-                                <i class="fas fa-eye text-info mr-2"></i> View
-                            </a>
-                            <a class="dropdown-item view-grades" href="../teacher/tc_view_grade.php?student_id=${row.id}" style="cursor:default;">
-                                <i class="fas fa-book-open text-info mr-2"></i> View Card
-                            </a>
-                            <a class="dropdown-item view-attendance" style="cursor:default;">
-                                <i class="fas fa-calendar-check text-warning mr-2"></i> Attendance
-                            </a>
-                            <a class="dropdown-item edit-student" data-id="${row.id}">
-                                <i class="fas fa-edit text-success mr-2"></i> Edit
-                            </a>
-
-                        </div>
-                    `;
-
-                    const dropdownHtml = `
+                        const dropdownHtml = `
                         <div class="dropdown d-inline-block">
                             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                 <i class="fas fa-ellipsis-v"></i>
@@ -250,7 +229,6 @@ $(document).ready(function() {
                             </div>
                         </div>
                     `;
-
                     return attendanceHtml + dropdownHtml;
                 }
             }
